@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Haven</title>
+<style>
+/* ===== RESET & BASE ===== */
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  scroll-behavior:smooth;
+}
+body{
+  font-family: Georgia,'Times New Roman',serif;
+  min-height:100vh;
+  display:grid;
+  grid-template-columns: 1fr 280px;
+  grid-template-rows:auto auto 1fr auto;
+  grid-template-areas:
+    "header cart"
+    "nav cart"
+    "main cart"
+    "footer cart";
+  background:#EFEBE9;
+}
+
+/* ===== HEADER ===== */
+.header{
+  grid-area:header;
+  background-color: #4E342E;
+  color: #FFF8E1;
+  text-align:center;
+  padding:2rem;
+}
+
+/* ===== NAV ===== */
+.nav{
+  grid-area:nav;
+  background-color: #6D4C41;
+}
+.nav ul{
+  display:flex;
+  justify-content:center;
+  gap:2rem;
+  list-style:none;
+  padding:1rem;
+}
+.nav a{
+  color:#FFF8E1;
+  text-decoration:none;
+  font-weight:bold;
+}
+.nav a:hover{
+  text-decoration:underline;
+}
+
+/* ===== MAIN ===== */
+.main-content{
+  grid-area:main;
+  padding:2rem;
+}
+
+/* ===== SECTION TITLES ===== */
+section{
+  margin-bottom:3rem;
+}
+section h2{
+  text-align:center;
+  color:#4E342E;
+  margin-bottom:1.5rem;
+}
+
+/* ===== DRINK CARDS ===== */
+.flex-container{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.flex-item{
+  background:#8D6E63;
+  color:#FFF8E1;
+  width:200px;
+  border-radius:10px;
+  overflow:hidden;
+  text-align:center;
+  box-shadow:0 4px 8px rgba(0,0,0,.2);
+  transition:.2s;
+}
+.flex-item:hover{
+  transform:scale(1.05);
+  background:#5D4037;
+  cursor:pointer;
+}
+.flex-item img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  display:block;
+  margin-bottom:8px;
+}
+.flex-item span{
+  display:block;
+  margin-top:4px;
+}
+.order-btn{
+  background:#4E342E;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:15px;
+  cursor:pointer;
+  margin-top:6px;
+  font-weight:bold;
+  transition:.2s;
+}
+.order-btn:hover{
+  background:#3E2723;
+}
+
+/* ===== ABOUT ===== */
+.about{
+  max-width:700px;
+  margin:auto;
+  text-align:center;
+  line-height:1.6;
+  color:#4E342E;
+}
+
+/* ===== CONTACT FORM ===== */
+.contact-form{
+  max-width:500px;
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+}
+.contact-form input,
+.contact-form textarea{
+  padding:.7rem;
+  border-radius:6px;
+  border:1px solid #8D6E63;
+  font-family:inherit;
+}
+.contact-form button{
+  background:#6D4C41;
+  color:white;
+  border:none;
+  padding:.7rem;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.2s;
+}
+.contact-form button:hover{
+  background:#4E342E;
+}
+
+/* ===== CART ===== */
+.cart{
+  grid-area:cart;
+  background:white;
+  border-left:3px solid #6D4C41;
+  padding:15px;
+}
+.cart h3{
+  margin-bottom:10px;
+  color:#4E342E;
+}
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
+  font-size:14px;
+}
+.cart-controls button{
+  margin:2px;
+  padding:2px 6px;
+}
+.total{
+  margin-top:10px;
+  font-weight:bold;
+}
+.checkout-btn{
+  margin-top:10px;
+  background:#4E342E;
+  color:white;
+  border:none;
+  padding:8px 16px;
+  border-radius:20px;
+  cursor:pointer;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  grid-area:footer;
+  background-color: #4E342E;
+  color:#FFF8E1;
+  text-align:center;
+  padding:1rem;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .nav ul{
+    flex-direction:column;
+    align-items:center;
+    gap:.5rem;
+  }
+  .flex-item{
+    width:100%;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+<h1>Java Haven</h1>
+<p>Your daily dose of caffeine and comfort.</p>
+</header>
+
+<nav class="nav">
+<ul>
+<li><a href="#menu">Menu</a></li>
+<li><a href="#about">About Us</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+</nav>
+
+<main class="main-content">
+
+<!-- MENU -->
+<section id="menu">
+<h2>Featured Coffees</h2>
+<div class="flex-container">
+
+<div class="flex-item">
+  <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=400&q=80" alt="Espresso">
+  Espresso
+  <span>$2.50</span>
+  <button class="order-btn" onclick="addItem('Espresso',2.50)">Order Now</button>
+</div>
+
+<div class="flex-item">
+  <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80" alt="Cappuccino">
+  Cappuccino
+  <span>$3.75</span>
+  <button class="order-btn" onclick="addItem('Cappuccino',3.75)">Order Now</button>
+</div>
+
+<div class="flex-item">
+  <img src="https://images.unsplash.com/photo-1561047029-3000c68339ca?auto=format&fit=crop&w=400&q=80" alt="Latte">
+  Latte
+  <span>$4.00</span>
+  <button class="order-btn" onclick="addItem('Latte',4.00)">Order Now</button>
+</div>
+
+<div class="flex-item">
+  <img src="https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=400&q=80" alt="Mocha">
+  Mocha
+  <span>$4.25</span>
+  <button class="order-btn" onclick="addItem('Mocha',4.25)">Order Now</button>
+</div>
+
+<div class="flex-item">
+  <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=400&q=80" alt="Cold Brew">
+  Cold Brew
+  <span>$3.95</span>
+  <button class="order-btn" onclick="addItem('Cold Brew',3.95)">Order Now</button>
+</div>
+
+<div class="flex-item">
+  <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=400&q=80" alt="Caramel Macchiato">
+  Caramel Macchiato
+  <span>$4.50</span>
+  <button class="order-btn" onclick="addItem('Caramel Macchiato',4.50)">Order Now</button>
+</div>
+
+</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+<h2>About Java Haven</h2>
+<p class="about">
+At Java Haven Owned by Great presedint Jalin Pace , we believe coffee is more than a drink — it's a ritual.  
+From rich espresso shots to creamy handcrafted lattes, every cup is brewed
+to create a moment of comfort in your day.  
+Our beans are carefully selected and roasted to bring out bold flavor,
+smooth texture, and that cozy aroma that fills the room the moment
+your cup is poured.
+</p>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+<h2>Contact Us</h2>
+<form class="contact-form" action="mailto:s01373449@acad.tri-c.edu" method="post" enctype="text/plain">
+  <input type="text" name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <textarea name="message" rows="4" placeholder="Your Message"></textarea>
+  <button type="submit">Send Message</button>
+</form>
+</section>
+
+</main>
+
+<!-- CART -->
+<div class="cart">
+<h3>🛒 Cart</h3>
+<div id="cartItems"></div>
+<div class="total">Total: $<span id="total">0.00</span></div>
+<button class="checkout-btn" onclick="checkout()">Checkout</button>
+</div>
+
+<footer class="footer">
+<p>© 2025 Java Haven. All Rights Reserved.</p>
+</footer>
+
+<script>
+let cart=[]
+let total=0
+
+function addItem(name,price){
+  let existing = cart.find(item=>item.name===name)
+  if(existing){
+    existing.qty++
+  } else {
+    cart.push({name:name, price:price, qty:1})
+  }
+  renderCart()
+}
+
+function increaseQty(index){
+  cart[index].qty++
+  renderCart()
+}
+
+function decreaseQty(index){
+  if(cart[index].qty>1){
+    cart[index].qty--
+  } else {
+    cart.splice(index,1)
+  }
+  renderCart()
+}
+
+function renderCart(){
+  const cartDiv=document.getElementById("cartItems")
+  cartDiv.innerHTML=""
+  total=0
+  cart.forEach((item,index)=>{
+    let itemTotal=item.price*item.qty
+    total+=itemTotal
+    const row=document.createElement("div")
+    row.className="cart-item"
+    row.innerHTML=`
+      <div><strong>${item.name}</strong><br>$${item.price.toFixed(2)}</div>
+      <div class="cart-controls">
+        <button onclick="decreaseQty(${index})">-</button>
+        <span>${item.qty}</span>
+        <button onclick="increaseQty(${index})">+</button>
+      </div>`
+    cartDiv.appendChild(row)
+  })
+  document.getElementById("total").innerText=total.toFixed(2)
+}
+
+function checkout(){
+  if(cart.length===0){
+    alert("Your cart is empty ☕")
+    return
+  }
+  alert("Order placed! Total: $"+total.toFixed(2))
+  cart=[]
+  renderCart()
+}
+</script>
+
+</body>
+</html>
