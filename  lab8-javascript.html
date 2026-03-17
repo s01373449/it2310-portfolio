@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 8 - Interactive Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #secondButton {
+            background-color: #2196F3;
+        }
+        #secondButton:hover {
+            background-color: #1976D2;
+        }
+        #greeting {
+            font-size: 22px;
+            color: #333;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Page</h1>
+    <button id="nameButton">Click Me!</button>
+    <button id="secondButton">What Time Is It?</button>
+    <p id="greeting"></p>
+
+    <script>
+        // Your JavaScript will go here
+// PART 1: Output your name using document.write
+document.write("<p>Created by: Jalin Pace</p>");
+
+// PART 2: Select the button using its ID
+const button = document.getElementById("nameButton");
+
+// PART 3: Add a click event listener to the button
+button.addEventListener("click", () => {
+    // Prompt the user to enter their name
+    const user = prompt("What is your name?");
+
+    // BONUS 1: Change button background color on click
+    button.style.backgroundColor = "#FF5722";
+
+    // If a name is entered, update the button text
+    if (user) {
+        // BONUS 2: Make the greeting appear in a new paragraph instead of the button
+        document.getElementById("greeting").textContent = `Hello, ${user}!`;
+    } else {
+        document.getElementById("greeting").textContent = "";
+    }
+});
+
+// BONUS 3: Second button that does something different — shows the current time
+const secondButton = document.getElementById("secondButton");
+secondButton.addEventListener("click", () => {
+    const now = new Date();
+    alert(`The current time is: ${now.toLocaleTimeString()}`);
+});
+
+    </script>
+</body>
+</html>
