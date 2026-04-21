@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jalin Pace | Architectural Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#040810;overflow:hidden;font-family:'Press Start 2P',monospace;user-select:none;-webkit-user-select:none}
+
+/* ── TITLE SCREEN ── */
+#title{position:fixed;inset:0;background:#040810;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s ease}
+#title.out{opacity:0;pointer-events:none}
+.t-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(240,192,48,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(240,192,48,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+.t-logo{font-size:clamp(2.2rem,8vw,4.5rem);color:#f0c030;text-shadow:4px 4px 0 #9a7818,0 0 60px rgba(240,192,48,.25);margin-bottom:.5rem;animation:glitch 5s infinite}
+.t-sub{font-size:clamp(.45rem,1.8vw,.75rem);color:#00e5ff;letter-spacing:.12em;margin-bottom:.3rem}
+.t-job{font-size:clamp(.35rem,1.2vw,.55rem);color:rgba(232,240,255,.4);margin-bottom:.3rem}
+.t-loc{font-size:clamp(.3rem,1vw,.48rem);color:rgba(232,240,255,.25);margin-bottom:1.5rem}
+.t-load-wrap{width:min(280px,65vw);height:10px;background:rgba(240,192,48,.08);border:2px solid rgba(240,192,48,.25);margin-bottom:.5rem}
+.t-load-bar{height:100%;width:0%;background:repeating-linear-gradient(90deg,#f0c030 0,#f0c030 8px,#9a7818 8px,#9a7818 12px);transition:width .35s ease}
+.t-load-status{font-size:.32rem;color:rgba(240,192,48,.45);margin-bottom:1.8rem;min-height:1.2em;text-align:center}
+.t-start{font-family:'Press Start 2P',monospace;font-size:clamp(.45rem,1.6vw,.65rem);color:#f0c030;background:transparent;border:2px solid #f0c030;padding:.8rem 2rem;cursor:pointer;animation:blink 1s step-end infinite;transition:background .2s,transform .1s;display:none}
+.t-start:hover{background:rgba(240,192,48,.12);transform:scale(1.04)}
+.t-hint{position:absolute;bottom:1.5rem;font-size:.35rem;color:rgba(232,240,255,.25);letter-spacing:.08em}
+
+/* ── CUTSCENE ── */
+#cutscene{position:fixed;inset:0;background:#040810;z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem}
+#cutscene.show{display:flex}
+.cs-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(240,192,48,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(240,192,48,.03) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+#cs-frame{font-family:'Press Start 2P',monospace;font-size:clamp(.55rem,2vw,.85rem);color:#f0c030;text-align:center;max-width:600px;line-height:2.2;min-height:4em;padding:0 2rem;text-shadow:0 0 20px rgba(240,192,48,.3)}
+#cs-line2{font-family:'Press Start 2P',monospace;font-size:clamp(.38rem,1.4vw,.6rem);color:#00e5ff;text-align:center;min-height:2em;margin-top:.5rem}
+#cs-skip{position:absolute;bottom:1.5rem;font-family:'Press Start 2P',monospace;font-size:.35rem;color:rgba(232,240,255,.2);animation:blink 1.5s step-end infinite}
+#cs-bar{width:min(300px,70vw);height:3px;background:rgba(240,192,48,.12);margin-top:1.5rem}
+#cs-bar-fill{height:100%;background:#f0c030;width:0%;transition:width .4s linear}
+
+/* ── MINI-MAP ── */
+#minimap{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:600;width:min(480px,72vw);pointer-events:none}
+#mm-track{width:100%;height:5px;background:rgba(240,192,48,.1);border:1px solid rgba(240,192,48,.25);position:relative;border-radius:2px}
+#mm-player{position:absolute;top:-4px;width:10px;height:13px;background:#f0c030;transform:translateX(-50%);clip-path:polygon(50% 0%,100% 100%,0% 100%);transition:left .08s linear}
+.mm-dot{position:absolute;top:-3px;width:3px;height:11px;background:rgba(240,192,48,.35);transform:translateX(-50%)}
+.mm-dot.visited{background:rgba(0,229,255,.6)}
+.mm-lbl{position:absolute;top:7px;font-family:'Press Start 2P',monospace;font-size:.22rem;color:rgba(240,192,48,.35);transform:translateX(-50%);white-space:nowrap}
+
+/* ── BACK TO START BUTTON ── */
+#btn-home{font-family:'Press Start 2P',monospace;font-size:.48rem;background:rgba(240,192,48,.12);border:2px solid rgba(240,192,48,.4);color:#f0c030;padding:.45rem .75rem;cursor:pointer;transition:background .2s,transform .1s;white-space:nowrap;display:none}
+#btn-home:hover{background:rgba(240,192,48,.25);transform:scale(1.05)}
+
+/* ── GAME CONTAINER ── */
+#game{position:fixed;inset:0;overflow:hidden;background:linear-gradient(180deg,#030608 0%,#060e1a 55%,#0a1828 80%,#0e2038 100%)}
+#game.hidden{display:none}
+
+/* ── PARALLAX CLOUDS ── */
+#clouds{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.cloud{position:absolute;background:rgba(20,50,100,.35);border-radius:0}
+
+/* ── WORLD ── */
+#world{position:absolute;left:0;top:0;width:3400px;height:100%;will-change:transform;z-index:2}
+
+/* ── STARS ── */
+.star{position:absolute;background:#fff;border-radius:50%}
+
+/* ── GROUND ── */
+#ground{position:absolute;bottom:0;left:0;width:100%;height:80px;background:linear-gradient(180deg,#1c2e42 0%,#0f1e2e 40%,#080e18 100%);border-top:3px solid #f0c030;z-index:3}
+#ground::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(240,192,48,.07) 39px,rgba(240,192,48,.07) 40px)}
+#ground::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:rgba(240,192,48,.4);box-shadow:0 0 12px rgba(240,192,48,.3)}
+
+/* ── ZONE GROUPS ── */
+.zone{position:absolute;bottom:80px}
+.zone-sign{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.5rem;background:#f0c030;color:#040810;padding:4px 10px;border:2px solid #9a7818;box-shadow:3px 3px 0 #9a7818;bottom:calc(100% + 8px);animation:signBob 1.5s ease-in-out infinite}
+.e-prompt{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 38px);font-size:.55rem;color:#00e5ff;background:rgba(0,20,40,.9);border:2px solid #00e5ff;padding:4px 10px;white-space:nowrap;display:none;animation:blink .6s step-end infinite;z-index:20}
+.zone.active .e-prompt{display:block}
+.zone.active .zone-sign{background:#00e5ff;border-color:#007090}
+
+/* ── BUILDING SHARED ── */
+.b-wall{border:3px solid;position:relative}
+.b-win{position:absolute;border:2px solid;background:rgba(240,192,48,.2)}
+.b-win::before,.b-win::after{content:'';position:absolute;background:rgba(240,192,48,.4)}
+.b-win::before{width:100%;height:2px;top:50%;transform:translateY(-50%)}
+.b-win::after{width:2px;height:100%;left:50%;transform:translateX(-50%)}
+.b-door{position:absolute;bottom:0;left:50%;transform:translateX(-50%);border:2px solid;border-bottom:none}
+.b-door::after{content:'●';position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:6px}
+
+/* ── ABOUT — house ── */
+.b-about{width:200px}
+.b-about-roof{width:0;height:0;border-left:100px solid transparent;border-right:100px solid transparent;border-bottom:55px solid #c9a227;position:relative;z-index:2;filter:drop-shadow(0 -2px 0 #9a7818)}
+.b-about-wall{width:180px;height:130px;background:#0f2237;border-color:#1a4060;margin:0 10px}
+.b-about-wall .b-win{width:34px;height:28px;top:22px;border-color:#c9a227}
+.b-about-wall .b-win:nth-child(1){left:18px}
+.b-about-wall .b-win:nth-child(2){right:18px}
+.b-about-wall .b-door{width:38px;height:58px;background:rgba(200,160,40,.35);border-color:#c9a227}
+
+/* ── SKILLS — workshop ── */
+.b-skills{width:210px}
+.b-skills-top{width:210px;height:20px;background:#1a0d3a;border:3px solid #3a1a6a;border-bottom:none;display:flex;align-items:center;justify-content:space-around;padding:0 10px;font-size:12px}
+.b-skills-wall{width:210px;height:120px;background:#12082a;border:3px solid #3a1a6a;position:relative}
+.b-skills-wall .b-win{width:28px;height:24px;top:18px;border-color:#9a40c0}
+.b-skills-wall .b-win:nth-child(1){left:14px}
+.b-skills-wall .b-win:nth-child(2){left:54px}
+.b-skills-wall .b-win:nth-child(3){right:14px}
+.b-skills-wall .b-door{width:36px;height:55px;background:rgba(154,64,192,.25);border-color:#9a40c0}
+.b-gear{display:inline-block;color:#f0c030;font-size:14px;animation:spin 4s linear infinite}
+.b-gear2{animation-duration:6s;animation-direction:reverse}
+
+/* ── EXPERIENCE — office tower ── */
+.b-exp{width:110px}
+.b-exp-top{width:110px;height:16px;background:#041428;border:3px solid #0a3060;border-bottom:none}
+.b-exp-mid{width:110px;height:14px;background:#082040;border:3px solid #0a3060;border-bottom:none}
+.b-exp-wall{width:110px;height:220px;background:#041020;border:3px solid #0a3060;position:relative;overflow:hidden}
+.b-exp-wall::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 17px,rgba(10,48,96,.6) 17px,rgba(10,48,96,.6) 18px),repeating-linear-gradient(90deg,transparent,transparent 17px,rgba(10,48,96,.6) 17px,rgba(10,48,96,.6) 18px)}
+.win-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:4px;position:relative;z-index:1}
+.wg{width:16px;height:14px;background:rgba(240,192,48,.25);border:1px solid rgba(240,192,48,.4)}
+.wg.lit{background:rgba(240,230,100,.6);box-shadow:0 0 4px rgba(240,230,100,.4)}
+.b-exp-door{width:28px;height:38px;background:rgba(10,80,160,.4);border:2px solid #0a5090;border-bottom:none;position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+
+/* ── PROJECTS — construction ── */
+.b-proj{width:240px}
+.b-proj-scaffold{position:absolute;width:240px;height:160px;bottom:100%;left:0}
+.b-proj-scaffold::before{content:'';position:absolute;width:3px;height:100%;left:30px;background:rgba(240,192,48,.5)}
+.b-proj-scaffold::after{content:'';position:absolute;width:3px;height:100%;right:30px;background:rgba(240,192,48,.5)}
+.scaffold-h{position:absolute;height:3px;left:30px;right:30px;background:rgba(240,192,48,.4)}
+.b-proj-wall{width:240px;height:100px;background:#0d1e0d;border:3px solid #1a4a1a;position:relative}
+.b-proj-wall .b-win{width:36px;height:28px;top:16px;border-color:#40a040}
+.b-proj-wall .b-win:nth-child(1){left:18px}
+.b-proj-wall .b-win:nth-child(2){left:68px}
+.b-proj-wall .b-win:nth-child(3){right:18px}
+.b-proj-wall .b-door{width:40px;height:52px;background:rgba(40,120,40,.3);border-color:#40a040}
+.blueprint-sign{position:absolute;top:-30px;right:-10px;font-size:.35rem;background:#1a3a5c;color:#60c0ff;border:2px solid #4090c0;padding:4px 8px}
+
+/* ── EDUCATION — school ── */
+.b-edu{width:210px}
+.b-edu-flag{position:absolute;bottom:100%;left:105px;width:2px;height:50px;background:#c9a227}
+.b-edu-flag::after{content:'';position:absolute;top:0;left:2px;width:24px;height:14px;background:#f0c030;clip-path:polygon(0 0,100% 50%,0 100%)}
+.b-edu-top{width:210px;height:18px;background:#1a0a06;border:3px solid #6a2a10;border-bottom:none;display:flex;align-items:center;justify-content:center;font-size:.35rem;color:#f0a030}
+.b-edu-wall{width:210px;height:140px;background:#120806;border:3px solid #4a1a08;position:relative}
+.b-edu-col{position:absolute;width:12px;bottom:0;background:#3a1808;border:2px solid #6a2a10}
+.b-edu-wall .b-win{width:32px;height:26px;top:20px;border-color:#c07020}
+.b-edu-wall .b-win:nth-child(4){left:15px}
+.b-edu-wall .b-win:nth-child(5){right:15px}
+.b-edu-wall .b-door{width:42px;height:60px;background:rgba(160,80,20,.3);border-color:#c07020}
+
+/* ── CONTACT — radio tower ── */
+.b-con{width:80px}
+.b-con-ant{position:absolute;width:4px;bottom:100%;left:38px;height:60px;background:#c9a227}
+.b-con-ant::before,.b-con-ant::after{content:'';position:absolute;border-bottom:3px solid rgba(240,192,48,.6)}
+.b-con-ant::before{width:40px;left:-18px;top:15px;transform:rotate(-30deg)}
+.b-con-ant::after{width:40px;left:-18px;top:30px;transform:rotate(-20deg)}
+.b-con-top{width:80px;height:14px;background:#0d0820;border:3px solid #3a1060;border-bottom:none}
+.b-con-wall{width:80px;height:200px;background:#08041a;border:3px solid #2a0850;position:relative}
+.signal-ring{position:absolute;border:2px solid rgba(0,229,255,.4);border-radius:50%;left:50%;transform:translateX(-50%);animation:pulse 2s ease-out infinite}
+.b-con-door{width:24px;height:34px;background:rgba(80,20,160,.4);border:2px solid #5010a0;border-bottom:none;position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+
+/* ── DECORATIVE TREES ── */
+.tree{position:absolute;bottom:80px}
+.tree-trunk{width:12px;height:28px;background:#3a2010;margin:0 auto}
+.tree-top{width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-bottom:36px solid #1a3a10;margin:0 auto}
+.tree-top2{width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:28px solid #254a18;margin:0 auto;margin-top:-18px}
+
+/* ── PLAYER CHARACTER ── */
+#player{position:absolute;width:36px;z-index:10;transform-origin:center bottom;image-rendering:pixelated}
+#player svg{display:block}
+.player-shadow{width:28px;height:5px;background:rgba(240,192,48,.2);border-radius:50%;margin:0 auto;margin-top:1px}
+
+/* ── HUD ── */
+#hud{position:fixed;top:0;left:0;right:0;z-index:500;pointer-events:none;padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:linear-gradient(180deg,rgba(4,8,16,.9) 0%,transparent 100%)}
+.hud-name{font-size:.55rem;color:#f0c030;text-shadow:0 0 10px rgba(240,192,48,.4)}
+.hud-zone{font-size:.42rem;color:#00e5ff;flex:1;text-align:center}
+.hud-keys{font-size:.35rem;color:rgba(232,240,255,.3)}
+@media(max-width:600px){.hud-keys{display:none}}
+
+/* ── INFO PANELS ── */
+.panel{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(4,8,16,.85);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s ease}
+.panel.open{opacity:1;pointer-events:all}
+.panel-box{background:#080c18;border:3px solid #f0c030;box-shadow:6px 6px 0 #9a7818,0 0 60px rgba(240,192,48,.1);width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:slideUp .3s ease}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem;border-bottom:2px solid #9a7818;background:#060a14;position:sticky;top:0;z-index:2}
+.panel-title{font-size:.65rem;color:#f0c030}
+.panel-close{background:none;border:2px solid #f0c030;color:#f0c030;font-family:'Press Start 2P',monospace;font-size:.55rem;padding:.35rem .75rem;cursor:pointer;transition:all .2s}
+.panel-close:hover{background:#f0c030;color:#040810}
+.panel-body{padding:1.5rem;font-family:'Inter',sans-serif}
+/* panel content styles */
+.px-tag{display:inline-block;font-family:'Press Start 2P',monospace;font-size:.38rem;background:#f0c030;color:#040810;padding:3px 8px;margin-bottom:.75rem}
+.px-tag.c{background:#00e5ff}
+.px-h2{font-family:'Press Start 2P',monospace;font-size:.6rem;color:#e8f0ff;margin-bottom:1rem;line-height:1.7}
+.px-grid2{display:grid;grid-template-columns:1fr 2fr;gap:2rem;align-items:start}
+@media(max-width:600px){.px-grid2{grid-template-columns:1fr}}
+.px-photo{width:180px;border:3px solid #f0c030;box-shadow:4px 4px 0 #9a7818;position:relative}
+.px-photo::before{content:'PLAYER';font-family:'Press Start 2P',monospace;font-size:.35rem;background:#f0c030;color:#040810;padding:2px 7px;position:absolute;top:-13px;left:0}
+.px-avatar{width:100%;aspect-ratio:3/4;background:#0c1220;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:#6a7a94;font-size:.7rem}
+.px-badge{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);background:#00ff88;color:#040810;font-family:'Press Start 2P',monospace;font-size:.32rem;padding:.3rem .7rem;white-space:nowrap;border:2px solid rgba(0,0,0,.2);animation:blink 2s step-end infinite}
+.rpg-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin:1.2rem 0}
+.rpg-s{border:2px solid #9a7818;padding:.5rem .4rem;text-align:center}
+.rpg-s-n{font-family:'Press Start 2P',monospace;font-size:.38rem;color:#6a7a94;margin-bottom:.25rem}
+.rpg-s-v{font-family:'Press Start 2P',monospace;font-size:.75rem;color:#f0c030}
+.px-bio{font-size:.9rem;color:rgba(232,240,255,.75);line-height:1.75;margin-bottom:.75rem}
+.px-bio strong{color:#f0c030}
+.px-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin:.75rem 0}
+.px-tag-sm{font-family:'Press Start 2P',monospace;font-size:.35rem;background:#0c1220;border:1px solid #9a7818;color:#f0c030;padding:.3rem .6rem}
+.chip-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+.chip{font-family:'Press Start 2P',monospace;font-size:.35rem;padding:.45rem .8rem;border:2px solid #9a7818;color:#6a7a94;display:inline-flex;align-items:center;gap:.35rem}
+.skill-g{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+@media(max-width:500px){.skill-g{grid-template-columns:1fr}}
+.sk-card{background:#0c1220;border:2px solid #9a7818;padding:1.25rem;transition:border-color .2s}
+.sk-card:hover{border-color:#f0c030}
+.sk-card h3{font-family:'Press Start 2P',monospace;font-size:.5rem;color:#f0c030;margin-bottom:.75rem;line-height:1.6}
+.sk-card ul{list-style:none}
+.sk-card li{font-size:.82rem;color:rgba(232,240,255,.6);padding-left:1rem;position:relative;margin-bottom:.35rem;line-height:1.6}
+.sk-card li::before{content:'▶';position:absolute;left:0;font-size:.45rem;color:#f0c030;top:.1em}
+.tl-item{position:relative;margin-bottom:2rem;padding-left:1.5rem}
+.tl-item::before{content:'';position:absolute;left:0;top:8px;width:12px;height:12px;background:#f0c030;box-shadow:0 0 0 2px #040810,0 0 0 4px #f0c030}
+.tl-item::after{content:'';position:absolute;left:5px;top:20px;bottom:-2rem;width:2px;background:#9a7818}
+.tl-item:last-child::after{display:none}
+.tl-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.tl-role{font-family:'Press Start 2P',monospace;font-size:.55rem;color:#e8f0ff;line-height:1.6}
+.tl-co{font-size:.82rem;color:#6a7a94;margin-top:.3rem}
+.tl-date{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#f0c030;background:rgba(240,192,48,.1);border:1px solid #9a7818;padding:.3rem .6rem;white-space:nowrap;align-self:flex-start}
+.tl-wrap{background:#0c1220;border:2px solid #9a7818;padding:1.25rem}
+.tl-bullets{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem}
+.tl-bullets li{font-size:.85rem;color:rgba(232,240,255,.6);padding-left:.9rem;position:relative;line-height:1.65}
+.tl-bullets li::before{content:'■';position:absolute;left:0;font-size:.45rem;color:#f0c030;top:.2em}
+.tl-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.tl-tag{font-family:'Press Start 2P',monospace;font-size:.32rem;background:#040810;border:1px solid #9a7818;color:#f0c030;padding:.25rem .55rem}
+.proj-g{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+@media(max-width:550px){.proj-g{grid-template-columns:1fr}}
+.proj-c{background:#0c1220;border:2px solid #9a7818;overflow:hidden;transition:border-color .2s,transform .2s}
+.proj-c:hover{border-color:#f0c030;transform:translate(-2px,-2px)}
+.proj-vis{height:140px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:.6rem}
+.pv-b{background:linear-gradient(135deg,#0a1828 0%,#142840 100%)}
+.pv-g{background:linear-gradient(135deg,#0a1e0a 0%,#142814 100%)}
+.pv-lbl{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#f0c030;background:rgba(4,8,16,.75);padding:.25rem .55rem;border:1px solid #9a7818;position:relative;z-index:2}
+.proj-info{padding:1rem}
+.proj-info h3{font-family:'Press Start 2P',monospace;font-size:.5rem;color:#e8f0ff;margin-bottom:.5rem;line-height:1.6}
+.proj-info p{font-size:.82rem;color:rgba(232,240,255,.55);line-height:1.7;margin-bottom:.75rem}
+.proj-row{display:flex;justify-content:space-between;font-size:.75rem;padding:.25rem 0;border-top:1px solid #0c1220}
+.proj-lbl{font-family:'Press Start 2P',monospace;font-size:.33rem;color:#6a7a94}
+.proj-row span:last-child{color:rgba(232,240,255,.7);font-size:.75rem}
+.edu-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:580px){.edu-wrap{grid-template-columns:1fr}}
+.edu-c{background:#0c1220;border:2px solid #9a7818;padding:1.5rem}
+.edu-type{font-family:'Press Start 2P',monospace;font-size:.38rem;color:#f0c030;margin-bottom:.35rem}
+.edu-c h3{font-family:'Press Start 2P',monospace;font-size:.55rem;color:#e8f0ff;margin:.35rem 0 .2rem;line-height:1.6}
+.edu-sch{font-size:.85rem;color:#6a7a94}
+.edu-dt{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#9a7818;margin:.2rem 0 1rem}
+.edu-lbl{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#6a7a94;margin-bottom:.4rem}
+.edu-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.edu-tags span{font-size:.75rem;background:#040810;border:1px solid #9a7818;color:rgba(232,240,255,.55);padding:.22rem .55rem}
+.cert-item{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.cert-ico{width:36px;height:36px;flex-shrink:0;border:2px solid #9a7818;display:flex;align-items:center;justify-content:center;color:#f0c030;padding:5px;transition:all .2s}
+.cert-item:hover .cert-ico{border-color:#f0c030;background:rgba(240,192,48,.08)}
+.cert-n{font-family:'Press Start 2P',monospace;font-size:.42rem;color:#e8f0ff;line-height:1.6}
+.cert-s{font-size:.75rem;color:#6a7a94;margin-top:.2rem}
+.bar-list{display:flex;flex-direction:column;gap:.85rem;margin-top:1rem}
+.bar-item{display:flex;flex-direction:column;gap:.3rem}
+.bar-lbl{display:flex;justify-content:space-between}
+.bar-lbl span:first-child{font-family:'Press Start 2P',monospace;font-size:.38rem;color:rgba(232,240,255,.7)}
+.bar-lbl span:last-child{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#f0c030}
+.bar-track{height:13px;background:#040810;border:2px solid #9a7818;overflow:hidden}
+.bar-fill{height:100%;background:repeating-linear-gradient(90deg,#f0c030 0,#f0c030 8px,#9a7818 8px,#9a7818 12px);width:0;transition:width 1.2s steps(16,end)}
+.con-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:1.5rem}
+@media(max-width:580px){.con-grid{grid-template-columns:1fr}}
+.con-cards{display:flex;flex-direction:column;gap:.6rem}
+.con-card{background:#0c1220;border:2px solid #9a7818;padding:1rem;display:flex;align-items:center;gap:.75rem;transition:all .2s}
+.con-card:hover{border-color:#f0c030;transform:translateX(3px)}
+.con-ico{width:36px;height:36px;flex-shrink:0;border:2px solid #9a7818;display:flex;align-items:center;justify-content:center;color:#f0c030}
+.con-lbl{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#6a7a94;margin-bottom:.2rem}
+.con-val{font-size:.85rem;color:#e8f0ff}
+.con-val:hover{color:#f0c030}
+.contact-form{background:#0c1220;border:2px solid #9a7818;padding:1.5rem}
+.cf-head{font-family:'Press Start 2P',monospace;font-size:.48rem;color:#f0c030;margin-bottom:1.1rem;padding-bottom:.6rem;border-bottom:1px solid #9a7818}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:500px){.form-row2{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.fg label{font-family:'Press Start 2P',monospace;font-size:.37rem;color:rgba(232,240,255,.45)}
+.fg input,.fg textarea{background:#040810;border:2px solid #9a7818;padding:.65rem .85rem;font-size:.85rem;font-family:'Inter',sans-serif;color:#e8f0ff;outline:none;resize:vertical;transition:border-color .2s}
+#cf-m{font-family:'Inter',sans-serif!important;letter-spacing:0!important;word-spacing:normal!important;white-space:normal!important;overflow-wrap:break-word;line-height:1.6}
+.fg input::placeholder,.fg textarea::placeholder{color:#3a4a5a}
+.fg input:focus,.fg textarea:focus{border-color:#f0c030;box-shadow:0 0 0 2px rgba(240,192,48,.12)}
+.fg input.err,.fg textarea.err{border-color:#ff4444}
+.fe{font-family:'Press Start 2P',monospace;font-size:.35rem;color:#ff4444;min-height:1.2em;margin-top:.15rem}
+.btn-px{font-family:'Press Start 2P',monospace;font-size:.48rem;background:#f0c030;color:#040810;border:2px solid #f0c030;padding:.8rem 1.2rem;width:100%;cursor:pointer;box-shadow:4px 4px 0 #9a7818;transition:all .2s;margin-top:.25rem}
+.btn-px:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #9a7818}
+.btn-px:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.fs{font-family:'Press Start 2P',monospace;font-size:.42rem;color:#00ff88;text-align:center;margin-top:.75rem;min-height:1.4em;line-height:1.8}
+
+/* ── MOBILE D-PAD ── */
+#dpad{position:fixed;bottom:1.5rem;left:1.2rem;z-index:600;display:none;gap:0;flex-direction:column;align-items:center}
+#dpad-row{display:flex;gap:0}
+.dpbtn{width:52px;height:52px;background:rgba(240,192,48,.15);border:2px solid rgba(240,192,48,.4);color:#f0c030;font-family:'Press Start 2P',monospace;font-size:.8rem;cursor:pointer;transition:background .1s;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.dpbtn:active,.dpbtn.pressed{background:rgba(240,192,48,.4)}
+#dpad-jump{position:fixed;bottom:1.5rem;right:5.5rem;z-index:600;display:none}
+#dpad-e{position:fixed;bottom:1.5rem;right:1.2rem;z-index:600;display:none;width:60px;height:60px;background:rgba(0,229,255,.15);border:2px solid rgba(0,229,255,.4);color:#00e5ff;font-family:'Press Start 2P',monospace;font-size:.8rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;display:none;align-items:center;justify-content:center}
+@media(max-width:768px),(pointer:coarse){#dpad{display:flex}#dpad-jump{display:flex}#dpad-e{display:flex}}
+
+/* ── MUTE BUTTON ── */
+#top-btns{position:fixed;top:.75rem;right:1rem;z-index:700;display:none;align-items:center;gap:.5rem}
+#mute-btn,#wx-btn{background:rgba(240,192,48,.12);border:2px solid rgba(240,192,48,.4);color:#f0c030;font-family:'Press Start 2P',monospace;font-size:.55rem;padding:.45rem .75rem;cursor:pointer;transition:background .2s,transform .1s;white-space:nowrap}
+#mute-btn:hover,#wx-btn:hover{background:rgba(240,192,48,.25);transform:scale(1.05)}
+#mute-btn.muted,#wx-btn.off{border-color:rgba(232,240,255,.2);color:rgba(232,240,255,.35)}
+
+/* ── KEYFRAMES ── */
+@keyframes blink{50%{opacity:0}}
+@keyframes glitch{0%,85%,100%{clip-path:none;transform:none}87%{clip-path:polygon(0 20%,100% 20%,100% 45%,0 45%);transform:translate(-3px,0)}90%{clip-path:polygon(0 55%,100% 55%,100% 70%,0 70%);transform:translate(3px,0)}93%{clip-path:none;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%{width:10px;height:10px;opacity:.8}100%{width:60px;height:60px;opacity:0}}
+@keyframes signBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes walkBob{0%,100%{transform:scaleX(var(--face)) translateY(0)}50%{transform:scaleX(var(--face)) translateY(-2px)}}
+
+/* ── DUST PARTICLES ── */
+.dust{position:absolute;width:5px;height:5px;background:rgba(240,192,48,.65);z-index:9;pointer-events:none;border-radius:1px}
+@keyframes dustFly{0%{transform:translate(var(--dx,0px),-1px) scale(1);opacity:.9}100%{transform:translate(var(--dx,0px),-18px) scale(0);opacity:0}}
+
+/* ── SCREEN FLASH ── */
+#flash{position:fixed;inset:0;pointer-events:none;background:#f0c030;opacity:0;z-index:850;transition:opacity .1s ease}
+
+/* ── SPRINT INDICATOR ── */
+#sprint-ind{font-family:'Press Start 2P',monospace;font-size:.38rem;color:#00e5ff;margin-left:.5rem;display:none;animation:blink .35s step-end infinite}
+#sprint-ind.on{display:inline}
+
+/* ── NPCs ── */
+.npc{position:absolute;bottom:80px;z-index:8}
+.npc-sprite{image-rendering:pixelated;display:block}
+.npc-bubble{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#080c18;border:2px solid #f0c030;color:#e8f0ff;font-family:'Inter',sans-serif;font-size:.72rem;padding:.35rem .75rem;pointer-events:none;opacity:0;transition:opacity .25s ease;line-height:1.5;box-shadow:3px 3px 0 #9a7818}
+.npc-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#f0c030}
+.npc:hover .npc-bubble,.npc.near .npc-bubble{opacity:1}
+@keyframes npcBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.npc-sprite{animation:npcBob 2s ease-in-out infinite}
+
+/* ── WEATHER ── */
+#weather-layer{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;transition:background 2s ease}
+.rain-drop{position:absolute;top:-30px;width:2px;height:20px;background:linear-gradient(180deg,transparent 0%,rgba(160,210,255,.75) 100%);border-radius:1px;transform:rotate(12deg);animation:rainFall linear forwards}
+@keyframes rainFall{to{top:110vh}}
+.snow-flake{position:absolute;top:-12px;background:rgba(255,255,255,.88);border-radius:50%;animation:snowDrift linear forwards}
+@keyframes snowDrift{0%{transform:translateX(0px)}25%{transform:translateX(18px)}50%{transform:translateX(-12px)}75%{transform:translateX(22px)}100%{top:102vh;transform:translateX(-8px)}}
+.fog-strip{position:absolute;width:120%;height:80px;background:rgba(200,220,240,.07);border-radius:50%;animation:fogDrift linear infinite}
+@keyframes fogDrift{0%{transform:translateX(-10%)}100%{transform:translateX(10%)}}
+#weather-badge{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:600;font-family:'Press Start 2P',monospace;font-size:.36rem;color:rgba(180,220,255,.7);letter-spacing:.06em;pointer-events:none;opacity:0;transition:opacity 1s ease;text-shadow:0 0 10px rgba(100,180,255,.4)}
+
+/* ── CURSOR GLOW ── */
+body{cursor:none}
+#cursor{position:fixed;width:14px;height:14px;border-radius:50%;background:rgba(240,192,48,.85);pointer-events:none;z-index:999999;transform:translate(-50%,-50%);box-shadow:0 0 8px rgba(240,192,48,.7),0 0 20px rgba(240,192,48,.35);mix-blend-mode:screen;transition:transform .04s}
+.cursor-trail{position:fixed;border-radius:50%;pointer-events:none;z-index:999998;transform:translate(-50%,-50%);background:rgba(240,192,48,.35)}
+
+/* ── RAIN SPLASH ── */
+.rain-splash{position:absolute;bottom:80px;width:10px;height:5px;border-radius:50%;border:1.5px solid rgba(160,210,255,.55);background:transparent;pointer-events:none;transform-origin:center;animation:rainSplash .35s ease-out forwards}
+@keyframes rainSplash{0%{transform:scale(1);opacity:.8}100%{transform:scaleX(2.8) scaleY(.2);opacity:0}}
+
+/* ── JUMP ANIMATION ── */
+#player{transition:transform .06s ease}
+
+/* ── WIPE TRANSITION ── */
+#wipe{position:fixed;inset:0;z-index:797;pointer-events:none;display:flex}
+.wipe-bar{flex:1;background:#040810;transform:scaleY(0);transform-origin:top;will-change:transform}
+
+/* ── MOBILE JOYSTICK ── */
+#joystick-zone{position:fixed;bottom:1.5rem;left:1rem;width:110px;height:110px;z-index:600;display:none;align-items:center;justify-content:center;touch-action:none}
+#joystick-base{width:100px;height:100px;border-radius:50%;background:rgba(240,192,48,.08);border:2px solid rgba(240,192,48,.25);position:relative;touch-action:none}
+#joystick-knob{position:absolute;width:44px;height:44px;border-radius:50%;background:rgba(240,192,48,.45);border:2px solid rgba(240,192,48,.8);top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(240,192,48,.3);touch-action:none}
+@media(max-width:768px),(pointer:coarse){#joystick-zone{display:flex}#dpad{display:none!important}}
+
+/* ── HUD CLOCK ── */
+#hud-clock{font-family:'Press Start 2P',monospace;font-size:.35rem;color:rgba(240,192,48,.5);white-space:nowrap}
+
+/* ── SECRET ZONE ── */
+.b-secret{width:110px;height:160px;background:#040810;border:3px solid #00ff88;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;position:relative}
+.b-secret-q{font-size:2.5rem;animation:blink .8s step-end infinite}
+.b-secret-sign{font-family:'Press Start 2P',monospace;font-size:.4rem;color:#00ff88;text-align:center;line-height:1.8}
+.zone-sign.green{background:#00ff88;color:#040810;border-color:#00aa44}
+.zone.active .zone-sign.green{background:#00ff88;border-color:#00cc55}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- ── TITLE SCREEN ── -->
+<div id="title">
+  <div class="t-grid"></div>
+  <div class="t-logo">JP.EXE</div>
+  <div class="t-sub">JALIN PACE</div>
+  <div class="t-job">ARCHITECTURAL ENGINEER</div>
+  <div class="t-loc">CLEVELAND, OH</div>
+  <div class="t-load-wrap"><div class="t-load-bar" id="t-load-bar"></div></div>
+  <div class="t-load-status" id="t-load-status">INITIALIZING ENGINE...</div>
+  <button class="t-start" id="startBtn">▶ PRESS START</button>
+  <div class="t-hint">← → MOVE &nbsp;|&nbsp; SPACE JUMP &nbsp;|&nbsp; E INTERACT</div>
+</div>
+
+<!-- ── CUTSCENE ── -->
+<div id="cutscene">
+  <div class="cs-grid"></div>
+  <div id="cs-frame"></div>
+  <div id="cs-line2"></div>
+  <div id="cs-bar"><div id="cs-bar-fill"></div></div>
+  <div id="cs-skip">CLICK OR PRESS ANY KEY TO SKIP</div>
+</div>
+
+<!-- ── GAME ── -->
+<div id="game" class="hidden">
+
+  <!-- Parallax clouds layer (fixed) -->
+  <div id="clouds">
+    <div class="cloud" style="width:140px;height:22px;top:8%;left:5%"></div>
+    <div class="cloud" style="width:90px;height:16px;top:14%;left:22%"></div>
+    <div class="cloud" style="width:180px;height:28px;top:6%;left:50%"></div>
+    <div class="cloud" style="width:110px;height:18px;top:18%;left:72%"></div>
+    <div class="cloud" style="width:70px;height:14px;top:10%;left:88%"></div>
+  </div>
+
+  <!-- World (scrolls) -->
+  <div id="world">
+
+    <!-- STARS (static in world) -->
+
+    <!-- NPCs -->
+    <div class="npc" style="left:178px" id="npc0">
+      <div class="npc-bubble">Welcome! Walk right to explore Jalin's portfolio! →</div>
+      <svg class="npc-sprite" viewBox="0 0 32 48" width="28" height="42" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="7" y="0" width="18" height="6" rx="3" fill="#1a0a00"/>
+        <rect x="8" y="4" width="16" height="12" fill="#3d1e08"/>
+        <rect x="10" y="7" width="3" height="3" fill="#fff"/>
+        <rect x="11" y="8" width="2" height="2" fill="#1a0a00"/>
+        <rect x="19" y="7" width="3" height="3" fill="#fff"/>
+        <rect x="20" y="8" width="2" height="2" fill="#1a0a00"/>
+        <rect x="6" y="16" width="20" height="12" fill="#1a5a1a"/>
+        <rect x="0" y="16" width="6" height="10" fill="#1a5a1a"/>
+        <rect x="26" y="14" width="6" height="8" fill="#1a5a1a"/>
+        <rect x="26" y="12" width="6" height="4" fill="#3d1e08"/>
+        <rect x="0" y="26" width="6" height="4" fill="#3d1e08"/>
+        <rect x="8" y="28" width="6" height="12" fill="#2244aa"/>
+        <rect x="18" y="28" width="6" height="12" fill="#2244aa"/>
+        <rect x="6" y="38" width="9" height="4" fill="#3a2a1a"/>
+        <rect x="17" y="38" width="9" height="4" fill="#3a2a1a"/>
+      </svg>
+    </div>
+    <div class="npc" style="left:622px" id="npc1">
+      <div class="npc-bubble">The ABOUT section is right back there! ◄</div>
+      <svg class="npc-sprite" viewBox="0 0 32 48" width="28" height="42" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="8" y="0" width="16" height="8" fill="#1a0a00"/>
+        <rect x="8" y="5" width="16" height="12" fill="#5a3018"/>
+        <rect x="10" y="8" width="3" height="3" fill="#1a0a00"/>
+        <rect x="19" y="8" width="3" height="3" fill="#1a0a00"/>
+        <rect x="6" y="17" width="20" height="12" fill="#a02020"/>
+        <rect x="0" y="17" width="6" height="10" fill="#a02020"/>
+        <rect x="26" y="17" width="6" height="10" fill="#a02020"/>
+        <rect x="0" y="27" width="6" height="4" fill="#5a3018"/>
+        <rect x="26" y="27" width="6" height="4" fill="#5a3018"/>
+        <rect x="8" y="29" width="6" height="12" fill="#d4b896"/>
+        <rect x="18" y="29" width="6" height="12" fill="#d4b896"/>
+        <rect x="6" y="39" width="9" height="4" fill="#3a2a1a"/>
+        <rect x="17" y="39" width="9" height="4" fill="#3a2a1a"/>
+      </svg>
+    </div>
+    <div class="npc" style="left:1062px" id="npc2">
+      <div class="npc-bubble">⚙ The skill tree is impressive!</div>
+      <svg class="npc-sprite" viewBox="0 0 32 48" width="28" height="42" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="8" y="0" width="16" height="7" fill="#3a1800"/>
+        <rect x="8" y="4" width="16" height="12" fill="#4a2810"/>
+        <rect x="10" y="7" width="3" height="3" fill="#1a0a00"/>
+        <rect x="19" y="7" width="3" height="3" fill="#1a0a00"/>
+        <rect x="6" y="16" width="20" height="12" fill="#e8e8e8"/>
+        <rect x="0" y="16" width="6" height="10" fill="#e8e8e8"/>
+        <rect x="26" y="16" width="6" height="10" fill="#e8e8e8"/>
+        <rect x="0" y="26" width="6" height="4" fill="#4a2810"/>
+        <rect x="26" y="26" width="6" height="4" fill="#4a2810"/>
+        <rect x="8" y="28" width="6" height="12" fill="#1a3060"/>
+        <rect x="18" y="28" width="6" height="12" fill="#1a3060"/>
+        <rect x="6" y="38" width="9" height="4" fill="#3a2a1a"/>
+        <rect x="17" y="38" width="9" height="4" fill="#3a2a1a"/>
+      </svg>
+    </div>
+    <div class="npc" style="left:1878px" id="npc3">
+      <div class="npc-bubble">🎓 Ohio State trained — Go Bucks!</div>
+      <svg class="npc-sprite" viewBox="0 0 32 48" width="28" height="42" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="6" y="0" width="20" height="5" fill="#c9a227"/>
+        <rect x="4" y="4" width="24" height="2" fill="#c9a227"/>
+        <rect x="8" y="5" width="16" height="12" fill="#3d1e08"/>
+        <rect x="10" y="8" width="3" height="3" fill="#1a0a00"/>
+        <rect x="19" y="8" width="3" height="3" fill="#1a0a00"/>
+        <rect x="6" y="17" width="20" height="12" fill="#8020a0"/>
+        <rect x="0" y="17" width="6" height="10" fill="#8020a0"/>
+        <rect x="26" y="17" width="6" height="10" fill="#8020a0"/>
+        <rect x="0" y="27" width="6" height="4" fill="#3d1e08"/>
+        <rect x="26" y="27" width="6" height="4" fill="#3d1e08"/>
+        <rect x="8" y="29" width="6" height="12" fill="#d4b896"/>
+        <rect x="18" y="29" width="6" height="12" fill="#d4b896"/>
+        <rect x="6" y="39" width="9" height="4" fill="#3a2a1a"/>
+        <rect x="17" y="39" width="9" height="4" fill="#3a2a1a"/>
+      </svg>
+    </div>
+    <div class="npc" style="left:2492px" id="npc4">
+      <div class="npc-bubble">📡 Send Jalin a message at the tower! →</div>
+      <svg class="npc-sprite" viewBox="0 0 32 48" width="28" height="42" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="8" y="0" width="16" height="8" fill="#1a0a00"/>
+        <rect x="8" y="4" width="16" height="12" fill="#3d1e08"/>
+        <rect x="10" y="7" width="3" height="3" fill="#1a0a00"/>
+        <rect x="19" y="7" width="3" height="3" fill="#1a0a00"/>
+        <rect x="12" y="13" width="8" height="2" fill="#2a1405"/>
+        <rect x="6" y="16" width="20" height="12" fill="#0a60a0"/>
+        <rect x="0" y="16" width="6" height="10" fill="#0a60a0"/>
+        <rect x="26" y="14" width="6" height="8" fill="#0a60a0"/>
+        <rect x="26" y="12" width="6" height="4" fill="#3d1e08"/>
+        <rect x="0" y="26" width="6" height="4" fill="#3d1e08"/>
+        <rect x="8" y="28" width="6" height="12" fill="#d4b896"/>
+        <rect x="18" y="28" width="6" height="12" fill="#d4b896"/>
+        <rect x="6" y="38" width="9" height="4" fill="#3a2a1a"/>
+        <rect x="17" y="38" width="9" height="4" fill="#3a2a1a"/>
+      </svg>
+    </div>
+
+    <!-- ZONE 1 — ABOUT (house) x=320 -->
+    <div class="zone" id="z-about" style="left:320px" data-zone="about">
+      <div class="zone-sign">PLAYER PROFILE</div>
+      <div class="e-prompt">[ E ] OPEN</div>
+      <div class="b-about">
+        <div class="b-about-roof"></div>
+        <div class="b-wall b-about-wall">
+          <div class="b-win"></div>
+          <div class="b-win"></div>
+          <div class="b-door" style="border-color:#c9a227;background:rgba(200,162,40,.35)">&#9679;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decorative trees -->
+    <div class="tree" style="left:220px"><div class="tree-top2"></div><div class="tree-top"></div><div class="tree-trunk"></div></div>
+    <div class="tree" style="left:580px"><div class="tree-top2"></div><div class="tree-top"></div><div class="tree-trunk"></div></div>
+
+    <!-- ZONE 2 — SKILLS (workshop) x=760 -->
+    <div class="zone" id="z-skills" style="left:740px" data-zone="skills">
+      <div class="zone-sign">SKILL TREE</div>
+      <div class="e-prompt">[ E ] OPEN</div>
+      <div class="b-skills">
+        <div class="b-skills-top"><span class="b-gear">⚙</span><span class="b-gear b-gear2">⚙</span><span class="b-gear">⚙</span></div>
+        <div class="b-wall b-skills-wall">
+          <div class="b-win" style="border-color:#9a40c0"></div>
+          <div class="b-win" style="border-color:#9a40c0"></div>
+          <div class="b-win" style="border-color:#9a40c0"></div>
+          <div class="b-door" style="border-color:#9a40c0;background:rgba(154,64,192,.25)">&#9679;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONE 3 — EXPERIENCE (office tower) x=1200 -->
+    <div class="zone" id="z-experience" style="left:1180px" data-zone="experience">
+      <div class="zone-sign">QUEST LOG</div>
+      <div class="e-prompt">[ E ] OPEN</div>
+      <div class="b-exp">
+        <div class="b-exp-top"></div>
+        <div class="b-exp-mid"></div>
+        <div class="b-wall b-exp-wall">
+          <div class="win-grid">
+            <div class="wg lit"></div><div class="wg"></div><div class="wg lit"></div><div class="wg lit"></div>
+            <div class="wg"></div><div class="wg lit"></div><div class="wg"></div><div class="wg lit"></div>
+            <div class="wg lit"></div><div class="wg lit"></div><div class="wg"></div><div class="wg lit"></div>
+            <div class="wg"></div><div class="wg"></div><div class="wg lit"></div><div class="wg"></div>
+            <div class="wg lit"></div><div class="wg"></div><div class="wg lit"></div><div class="wg lit"></div>
+            <div class="wg"></div><div class="wg lit"></div><div class="wg"></div><div class="wg"></div>
+            <div class="wg lit"></div><div class="wg lit"></div><div class="wg"></div><div class="wg lit"></div>
+            <div class="wg"></div><div class="wg lit"></div><div class="wg lit"></div><div class="wg"></div>
+          </div>
+          <div class="b-exp-door"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tree" style="left:1050px"><div class="tree-top2"></div><div class="tree-top"></div><div class="tree-trunk"></div></div>
+    <div class="tree" style="left:1380px"><div class="tree-top2"></div><div class="tree-top"></div><div class="tree-trunk"></div></div>
+
+    <!-- ZONE 4 — PROJECTS (construction) x=1640 -->
+    <div class="zone" id="z-projects" style="left:1600px" data-zone="projects">
+      <div class="zone-sign">PROJECTS</div>
+      <div class="e-prompt">[ E ] OPEN</div>
+      <div class="b-proj" style="position:relative">
+        <div class="b-proj-scaffold">
+          <div class="scaffold-h" style="top:20%"></div>
+          <div class="scaffold-h" style="top:50%"></div>
+          <div class="scaffold-h" style="top:80%"></div>
+        </div>
+        <div class="blueprint-sign">BLUEPRINT</div>
+        <div class="b-wall b-proj-wall">
+          <div class="b-win" style="border-color:#40a040"></div>
+          <div class="b-win" style="border-color:#40a040"></div>
+          <div class="b-win" style="border-color:#40a040"></div>
+          <div class="b-door" style="border-color:#40a040;background:rgba(40,120,40,.3)">&#9679;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONE 5 — EDUCATION (school) x=2080 -->
+    <div class="zone" id="z-education" style="left:2060px" data-zone="education">
+      <div class="zone-sign">TRAINING ARC</div>
+      <div class="e-prompt">[ E ] OPEN</div>
+      <div class="b-edu">
+        <div class="b-edu-flag"></div>
+        <div class="b-edu-top">OHIO STATE UNIVERSITY</div>
+        <div class="b-wall b-edu-wall">
+          <div class="b-edu-col" style="left:10px;height:140px"></div>
+          <div class="b-edu-col" style="left:30px;height:140px"></div>
+          <div class="b-edu-col" style="right:10px;height:140px"></div>
+          <div class="b-edu-col" style="right:30px;height:140px"></div>
+          <div class="b-win" style="border-color:#c07020"></div>
+          <div class="b-win" style="border-color:#c07020"></div>
+          <div class="b-door" style="border-color:#c07020;background:rgba(160,80,20,.3)">&#9679;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tree" style="left:1950px"><div class="tree-top2"></div><div class="tree-top"></div><div class="tree-trunk"></div></div>
+    <div class="tree" style="left:2340px"><div class="tree-top2"></div><div class="tree-top"></div><div class="tree-trunk"></div></div>
+
+    <!-- ZONE 6 — CONTACT (radio tower) x=2600 -->
+    <div class="zone" id="z-contact" style="left:2580px" data-zone="contact">
+      <div class="zone-sign">SEND MESSAGE</div>
+      <div class="e-prompt">[ E ] OPEN</div>
+      <div class="b-con">
+        <div class="b-con-ant"></div>
+        <div class="b-con-top"></div>
+        <div class="b-wall b-con-wall">
+          <div class="signal-ring" style="width:10px;height:10px;top:30px;margin-left:-5px"></div>
+          <div class="signal-ring" style="width:10px;height:10px;top:30px;margin-left:-5px;animation-delay:.5s"></div>
+          <div class="signal-ring" style="width:10px;height:10px;top:30px;margin-left:-5px;animation-delay:1s"></div>
+          <div class="b-con-door"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- End sign -->
+    <div style="position:absolute;bottom:82px;left:2900px;font-family:'Press Start 2P',monospace;font-size:.4rem;color:rgba(240,192,48,.3);writing-mode:vertical-lr">END OF WORLD</div>
+
+    <!-- SECRET ZONE x=3050 -->
+    <div class="zone" id="z-secret" style="left:3040px" data-zone="secret">
+      <div class="zone-sign green">??? SECRET</div>
+      <div class="e-prompt">[ E ] ENTER</div>
+      <div class="b-secret">
+        <div class="b-secret-q">?</div>
+        <div class="b-secret-sign">HIDDEN<br/>ROOM</div>
+      </div>
+    </div>
+
+    <!-- Player -->
+    <div id="player">
+      <svg id="psvg" viewBox="0 0 32 52" width="36" height="52" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <!-- Hard hat -->
+        <rect x="6" y="0" width="20" height="4" fill="#f0c030"/>
+        <rect x="4" y="4" width="24" height="2" fill="#f0c030"/>
+        <!-- Head -->
+        <rect x="8" y="6" width="16" height="13" fill="#3d1e08"/>
+        <rect x="10" y="9" width="3" height="3" fill="#1a0a00"/>
+        <rect x="19" y="9" width="3" height="3" fill="#1a0a00"/>
+        <rect x="12" y="15" width="8" height="2" fill="#2a1405"/>
+        <!-- Body -->
+        <rect x="6" y="19" width="20" height="14" fill="#0f3460"/>
+        <rect x="6" y="19" width="20" height="2" fill="#1a5098"/>
+        <!-- Arms -->
+        <rect x="0" y="19" width="6" height="10" fill="#0f3460"/>
+        <rect x="26" y="19" width="6" height="10" fill="#0f3460"/>
+        <!-- Hands -->
+        <rect x="0" y="29" width="6" height="4" fill="#3d1e08"/>
+        <rect x="26" y="29" width="6" height="4" fill="#3d1e08"/>
+        <!-- Legs (animated via JS class swap) -->
+        <rect id="pl-leg-l" x="8" y="33" width="6" height="12" fill="#d4b896"/>
+        <rect id="pl-leg-r" x="18" y="33" width="6" height="12" fill="#d4b896"/>
+        <!-- Boots -->
+        <rect id="pl-boot-l" x="6" y="43" width="9" height="4" fill="#3a2a1a"/>
+        <rect id="pl-boot-r" x="17" y="43" width="9" height="4" fill="#3a2a1a"/>
+      </svg>
+      <div class="player-shadow"></div>
+    </div>
+
+    <!-- Ground strip -->
+    <div id="ground"></div>
+
+  </div><!-- end #world -->
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-name">JP.EXE</div>
+    <div class="hud-zone" id="hud-zone">— WALK RIGHT TO EXPLORE —</div>
+    <div class="hud-keys">← → MOVE &nbsp; SPACE JUMP &nbsp; E INTERACT &nbsp; SHIFT SPRINT<span id="sprint-ind">⚡SPRINT</span></div>
+    <div id="hud-clock"></div>
+  </div>
+
+  <!-- INFO PANELS -->
+
+  <!-- ABOUT -->
+  <div class="panel" id="panel-about">
+    <div class="panel-box">
+      <div class="panel-head">
+        <span class="panel-title">★ PLAYER PROFILE</span>
+        <button class="panel-close" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body">
+        <div class="px-grid2">
+          <div>
+            <div class="px-photo">
+              <div class="px-avatar" style="padding:0;background:none">
+                <img src="avatar.png" alt="Jalin Pace"
+                     style="width:100%;aspect-ratio:1/1;object-fit:cover;object-position:top;display:block;image-rendering:pixelated"/>
+              </div>
+              <div class="px-badge">● AVAILABLE</div>
+            </div>
+            <div class="rpg-row">
+              <div class="rpg-s"><div class="rpg-s-n">STR</div><div class="rpg-s-v">92</div></div>
+              <div class="rpg-s"><div class="rpg-s-n">INT</div><div class="rpg-s-v">95</div></div>
+              <div class="rpg-s"><div class="rpg-s-n">AGI</div><div class="rpg-s-v">88</div></div>
+              <div class="rpg-s"><div class="rpg-s-n">DEX</div><div class="rpg-s-v">90</div></div>
+              <div class="rpg-s"><div class="rpg-s-n">VIT</div><div class="rpg-s-v">85</div></div>
+              <div class="rpg-s"><div class="rpg-s-n">LCK</div><div class="rpg-s-v">77</div></div>
+            </div>
+          </div>
+          <div>
+            <span class="px-tag">LEVEL 01</span>
+            <div class="px-h2">JALIN PACE</div>
+            <p class="px-bio">Detail-oriented <strong>Architectural Engineer</strong> with hands-on experience designing, analyzing, and managing building projects from concept through construction.</p>
+            <p class="px-bio">Based in <strong>Cleveland, OH</strong>, I specialize in structural design, BIM/CAD modeling, MEP coordination, and building code compliance — delivering efficient, sustainable solutions.</p>
+            <p class="px-bio">Currently completing a <strong>B.S. in Architectural Engineering</strong> at Ohio State while working full-time at Pace Architect.</p>
+            <div class="px-tags">
+              <span class="px-tag-sm">Revit</span><span class="px-tag-sm">AutoCAD</span><span class="px-tag-sm">SketchUp</span>
+              <span class="px-tag-sm">LEED</span><span class="px-tag-sm">BIM</span><span class="px-tag-sm">Cleveland, OH</span>
+            </div>
+            <div class="chip-row">
+              <a href="mailto:pacejalin42@gmail.com" class="chip" style="text-decoration:none">✉ pacejalin42@gmail.com</a>
+              <a href="tel:2166257232" class="chip" style="text-decoration:none">☎ (216) 625-7232</a>
+              <a href="https://www.linkedin.com/in/jalin-p-234892376" target="_blank" class="chip" style="text-decoration:none">in LinkedIn</a>
+            </div>
+            <button onclick="downloadResume()" class="btn-px" style="margin-top:1.25rem;font-size:.42rem">⬇ DOWNLOAD RESUME</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="panel" id="panel-skills">
+    <div class="panel-box">
+      <div class="panel-head">
+        <span class="panel-title">⚙ SKILL TREE</span>
+        <button class="panel-close" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body">
+        <span class="px-tag c">LEVEL 02</span>
+        <div class="px-h2">UNLOCKED ABILITIES</div>
+        <div class="skill-g">
+          <div class="sk-card">
+            <h3>DESIGN &amp; DRAFTING</h3>
+            <ul><li>Architectural Design &amp; Drafting</li><li>Construction Documentation</li><li>3D Modeling &amp; Rendering</li><li>Structural Analysis &amp; Detailing</li></ul>
+          </div>
+          <div class="sk-card">
+            <h3>SOFTWARE TOOLS</h3>
+            <ul><li>Autodesk Revit (BIM)</li><li>AutoCAD</li><li>SketchUp &amp; Lumion</li><li>Bluebeam Revu</li></ul>
+          </div>
+          <div class="sk-card">
+            <h3>COMPLIANCE &amp; CODES</h3>
+            <ul><li>Building Codes (IBC / IRC)</li><li>ADA Compliance</li><li>Energy Efficiency &amp; LEED</li><li>OSHA Construction Safety</li></ul>
+          </div>
+          <div class="sk-card">
+            <h3>SYSTEMS INTEGRATION</h3>
+            <ul><li>MEP Coordination</li><li>HVAC System Integration</li><li>Electrical &amp; Plumbing</li><li>Structural Load Calculations</li></ul>
+          </div>
+          <div class="sk-card">
+            <h3>PROJECT MANAGEMENT</h3>
+            <ul><li>Project Coordination</li><li>Site Inspections</li><li>Cost Estimation</li><li>Material Selection &amp; Specs</li></ul>
+          </div>
+          <div class="sk-card">
+            <h3>SUSTAINABILITY</h3>
+            <ul><li>Passive Solar Design</li><li>Energy Modeling</li><li>Advanced Insulation Systems</li><li>Green Building Practices</li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <div class="panel" id="panel-experience">
+    <div class="panel-box">
+      <div class="panel-head">
+        <span class="panel-title">📋 QUEST LOG</span>
+        <button class="panel-close" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body">
+        <span class="px-tag">LEVEL 03</span>
+        <div class="px-h2">COMPLETED QUESTS</div>
+        <div class="tl-item">
+          <div class="tl-head">
+            <div><div class="tl-role">Architectural Engineer</div><div class="tl-co">Pace Architect — Cleveland, OH</div></div>
+            <span class="tl-date">MAR 2023 – PRESENT</span>
+          </div>
+          <div class="tl-wrap">
+            <ul class="tl-bullets">
+              <li>Designed and coordinated building systems for commercial and residential structures, ensuring compliance with local and international building codes.</li>
+              <li>Produced detailed architectural drawings, structural layouts, and 3D models using Revit and AutoCAD.</li>
+              <li>Collaborated with MEP engineers to integrate building systems efficiently and resolve design conflicts.</li>
+              <li>Conducted site visits to monitor construction quality, verify adherence to plans, and address field issues.</li>
+              <li>Prepared material specifications, cost estimates, and project schedules to support project planning.</li>
+            </ul>
+            <div class="tl-tags"><span class="tl-tag">Revit</span><span class="tl-tag">AutoCAD</span><span class="tl-tag">MEP Coord</span><span class="tl-tag">Site Inspection</span></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-head">
+            <div><div class="tl-role">Arch. Engineering Intern</div><div class="tl-co">Pace Architect — Cleveland, OH</div></div>
+            <span class="tl-date">PRIOR EXPERIENCE</span>
+          </div>
+          <div class="tl-wrap">
+            <ul class="tl-bullets">
+              <li>Assisted senior engineers in preparing construction documents, feasibility studies, and building assessments.</li>
+              <li>Supported drafting and modeling of floor plans, elevations, and structural components.</li>
+              <li>Performed basic load calculations, material takeoffs, and documentation preparation.</li>
+              <li>Created 3D renderings for client presentations and design reviews.</li>
+              <li>Participated in site inspections and documented issues needing corrective action.</li>
+            </ul>
+            <div class="tl-tags"><span class="tl-tag">SketchUp</span><span class="tl-tag">Lumion</span><span class="tl-tag">Const. Docs</span><span class="tl-tag">3D Rendering</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="panel" id="panel-projects">
+    <div class="panel-box">
+      <div class="panel-head">
+        <span class="panel-title">🏗 COMPLETED PROJECTS</span>
+        <button class="panel-close" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body">
+        <span class="px-tag c">LEVEL 04</span>
+        <div class="px-h2">PROJECT ARCHIVE</div>
+        <div class="proj-g">
+          <div class="proj-c">
+            <div class="proj-vis pv-b">
+              <div style="position:absolute;right:0;bottom:0;width:160px;height:120px;display:flex;flex-direction:column;justify-content:flex-end;padding:8px">
+                <div style="border:1.5px solid rgba(240,192,48,.35);height:28px;position:relative"><div style="position:absolute;inset:4px 8px;display:flex;gap:4px"><div style="flex:1;background:rgba(240,192,48,.25)"></div><div style="flex:1;background:rgba(240,192,48,.25)"></div></div></div>
+                <div style="border:1.5px solid rgba(240,192,48,.35);height:28px;margin-top:-1px;position:relative"><div style="position:absolute;inset:4px 8px;display:flex;gap:4px"><div style="flex:1;background:rgba(240,192,48,.25)"></div><div style="flex:1;background:rgba(240,192,48,.25)"></div></div></div>
+                <div style="border:1.5px solid rgba(240,192,48,.35);height:28px;margin-top:-1px;position:relative"><div style="position:absolute;inset:4px 8px;display:flex;gap:4px"><div style="flex:1;background:rgba(240,192,48,.25)"></div><div style="flex:1;background:rgba(240,192,48,.25)"></div></div></div>
+              </div>
+              <div class="pv-lbl">■ Mixed-Use Building</div>
+            </div>
+            <div class="proj-info">
+              <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem"><span style="font-family:'Press Start 2P',monospace;font-size:.32rem;color:#f0c030;background:rgba(240,192,48,.1);border:1px solid #9a7818;padding:.22rem .5rem">Structural Design</span><span style="font-family:'Press Start 2P',monospace;font-size:.32rem;color:#f0c030;background:rgba(240,192,48,.1);border:1px solid #9a7818;padding:.22rem .5rem">Revit</span><span style="font-family:'Press Start 2P',monospace;font-size:.32rem;color:#f0c030;background:rgba(240,192,48,.1);border:1px solid #9a7818;padding:.22rem .5rem">Sustainability</span></div>
+              <h3>MIXED-USE BUILDING DESIGN</h3>
+              <p>Developed full architectural and structural design for a 4-story mixed-use facility with reinforced concrete framing, sustainable mechanical systems, and integrated MEP coordination.</p>
+              <div class="proj-row"><span class="proj-lbl">TYPE</span><span>Commercial / Residential</span></div>
+              <div class="proj-row"><span class="proj-lbl">FLOORS</span><span>4 Stories</span></div>
+              <div class="proj-row"><span class="proj-lbl">STRUCTURE</span><span>Reinforced Concrete</span></div>
+            </div>
+          </div>
+          <div class="proj-c">
+            <div class="proj-vis pv-g">
+              <div style="position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:16px">
+                <div style="position:relative;width:110px">
+                  <div style="position:absolute;bottom:62px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:55px solid transparent;border-right:55px solid transparent;border-bottom:44px solid rgba(240,192,48,.35)"></div>
+                  <div style="position:relative;width:110px;height:64px;border:1.5px solid rgba(240,192,48,.4);background:rgba(240,192,48,.04)">
+                    <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:18px;height:34px;background:rgba(240,192,48,.22)"></div>
+                    <div style="position:absolute;top:10px;left:8px;width:20px;height:18px;background:rgba(240,192,48,.3)"></div>
+                    <div style="position:absolute;top:10px;right:8px;width:20px;height:18px;background:rgba(240,192,48,.3)"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pv-lbl">■ Energy-Efficient Home</div>
+            </div>
+            <div class="proj-info">
+              <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem"><span style="font-family:'Press Start 2P',monospace;font-size:.32rem;color:#f0c030;background:rgba(240,192,48,.1);border:1px solid #9a7818;padding:.22rem .5rem">Passive Solar</span><span style="font-family:'Press Start 2P',monospace;font-size:.32rem;color:#f0c030;background:rgba(240,192,48,.1);border:1px solid #9a7818;padding:.22rem .5rem">LEED</span></div>
+              <h3>ENERGY-EFFICIENT RESIDENTIAL</h3>
+              <p>Designed a high-efficiency home leveraging passive solar strategies, advanced insulation, and energy modeling — minimizing carbon footprint while maximizing occupant comfort.</p>
+              <div class="proj-row"><span class="proj-lbl">TYPE</span><span>Residential</span></div>
+              <div class="proj-row"><span class="proj-lbl">FOCUS</span><span>Net-Zero Energy</span></div>
+              <div class="proj-row"><span class="proj-lbl">STRATEGY</span><span>Passive Solar</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="panel" id="panel-education">
+    <div class="panel-box">
+      <div class="panel-head">
+        <span class="panel-title">🎓 TRAINING ARC</span>
+        <button class="panel-close" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body">
+        <span class="px-tag">LEVEL 05</span>
+        <div class="px-h2">EDUCATION &amp; ACHIEVEMENTS</div>
+        <div class="edu-wrap">
+          <div>
+            <div class="edu-c">
+              <div class="edu-type">BACHELOR OF SCIENCE</div>
+              <h3>Architectural Engineering</h3>
+              <div class="edu-sch">Ohio State University — Columbus, OH</div>
+              <div class="edu-dt">EXP. GRAD: JUNE 2031</div>
+              <div class="edu-lbl">COURSEWORK UNLOCKED:</div>
+              <div class="edu-tags">
+                <span>Structural Analysis</span><span>Building Systems</span>
+                <span>Architectural Design Studio</span><span>Construction Management</span>
+                <span>Materials Science</span><span>Environmental Systems</span>
+              </div>
+            </div>
+            <div class="edu-c" style="margin-top:1rem">
+              <div style="font-family:'Press Start 2P',monospace;font-size:.48rem;color:#f0c030;margin-bottom:1rem">★ ACHIEVEMENTS</div>
+              <div class="cert-item">
+                <div class="cert-ico"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="2"/><polyline points="10,16 14,20 22,12" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div><div class="cert-n">Engineer-in-Training (EIT)</div><div class="cert-s">National Council of Examiners</div></div>
+              </div>
+              <div class="cert-item">
+                <div class="cert-ico"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><polygon points="16,4 28,28 4,28" stroke="currentColor" stroke-width="2" fill="none"/><line x1="16" y1="14" x2="16" y2="20" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="23" r="1" fill="currentColor"/></svg></div>
+                <div><div class="cert-n">OSHA 30 Construction Safety</div><div class="cert-s">U.S. Dept. of Labor</div></div>
+              </div>
+              <div class="cert-item">
+                <div class="cert-ico"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="M16 4 Q28 10 28 20 Q28 28 16 30 Q4 28 4 20 Q4 10 16 4 Z" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="11,16 14,19 21,13" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div><div class="cert-n">LEED Green Associate</div><div class="cert-s">U.S. Green Building Council</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="edu-c">
+            <div style="font-family:'Press Start 2P',monospace;font-size:.48rem;color:#f0c030;margin-bottom:.75rem">⚡ TOOL PROFICIENCY</div>
+            <div class="bar-list" id="edu-bars">
+              <div class="bar-item"><div class="bar-lbl"><span>REVIT / BIM</span><span>92%</span></div><div class="bar-track"><div class="bar-fill" data-w="92"></div></div></div>
+              <div class="bar-item"><div class="bar-lbl"><span>AUTOCAD</span><span>90%</span></div><div class="bar-track"><div class="bar-fill" data-w="90"></div></div></div>
+              <div class="bar-item"><div class="bar-lbl"><span>SKETCHUP</span><span>85%</span></div><div class="bar-track"><div class="bar-fill" data-w="85"></div></div></div>
+              <div class="bar-item"><div class="bar-lbl"><span>LUMION</span><span>78%</span></div><div class="bar-track"><div class="bar-fill" data-w="78"></div></div></div>
+              <div class="bar-item"><div class="bar-lbl"><span>BLUEBEAM</span><span>80%</span></div><div class="bar-track"><div class="bar-fill" data-w="80"></div></div></div>
+              <div class="bar-item"><div class="bar-lbl"><span>MS 365</span><span>95%</span></div><div class="bar-track"><div class="bar-fill" data-w="95"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="panel" id="panel-contact">
+    <div class="panel-box">
+      <div class="panel-head">
+        <span class="panel-title">📡 SEND MESSAGE</span>
+        <button class="panel-close" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body">
+        <span class="px-tag c">LEVEL 06</span>
+        <div class="px-h2">GET IN TOUCH</div>
+        <div class="con-grid">
+          <div class="con-cards">
+            <div class="con-card"><div class="con-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><div><div class="con-lbl">EMAIL</div><a href="mailto:pacejalin42@gmail.com" class="con-val" style="text-decoration:none;color:#ffffff">pacejalin42@gmail.com</a></div></div>
+            <div class="con-card"><div class="con-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.01 1.22C0 .1.89 0 1 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L5.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"></path></svg></div><div><div class="con-lbl">PHONE</div><a href="tel:2166257232" class="con-val" style="text-decoration:none;color:#ffffff">(216) 625-7232</a></div></div>
+            <div class="con-card"><div class="con-ico"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></div><div><div class="con-lbl">LINKEDIN</div><a href="https://www.linkedin.com/in/jalin-p-234892376" target="_blank" class="con-val" style="text-decoration:none;color:#ffffff">linkedin.com/in/jalin-p-234892376</a></div></div>
+            <div class="con-card"><div class="con-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div><div class="con-lbl">LOCATION</div><span class="con-val">Cleveland, OH</span></div></div>
+          </div>
+          <form id="cf" class="contact-form" novalidate>
+            <div class="cf-head">▶ NEW MESSAGE</div>
+            <div class="form-row2">
+              <div class="fg"><label for="cf-n">PLAYER NAME</label><input type="text" id="cf-n" name="name" placeholder="Your name" required/><div class="fe" id="fe-n"></div></div>
+              <div class="fg"><label for="cf-e">EMAIL ADDR</label><input type="email" id="cf-e" name="email" placeholder="your@email.com" required/><div class="fe" id="fe-e"></div></div>
+            </div>
+            <div class="fg"><label for="cf-s">SUBJECT</label><input type="text" id="cf-s" name="subject" placeholder="Project inquiry, job opportunity..." required/><div class="fe" id="fe-s"></div></div>
+            <div class="fg"><label for="cf-m">MESSAGE</label><textarea id="cf-m" name="message" rows="4" placeholder="Tell me about your project..." required></textarea><div class="fe" id="fe-m"></div></div>
+            <button type="submit" class="btn-px" id="cf-btn">► SEND MESSAGE</button>
+            <div class="fs" id="cf-ok"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wipe transition -->
+  <div id="wipe">
+    <div class="wipe-bar"></div><div class="wipe-bar"></div><div class="wipe-bar"></div>
+    <div class="wipe-bar"></div><div class="wipe-bar"></div><div class="wipe-bar"></div>
+    <div class="wipe-bar"></div><div class="wipe-bar"></div>
+  </div>
+
+  <!-- Mobile joystick (replaces D-pad) -->
+  <div id="joystick-zone">
+    <div id="joystick-base">
+      <div id="joystick-knob"></div>
+    </div>
+  </div>
+
+  <!-- Weather layer -->
+  <div id="weather-layer"></div>
+  <div id="weather-badge"></div>
+
+  <!-- Screen flash overlay -->
+  <div id="flash"></div>
+
+  <!-- SECRET -->
+  <div class="panel" id="panel-secret">
+    <div class="panel-box" style="border-color:#00ff88;box-shadow:6px 6px 0 #00aa44,0 0 60px rgba(0,255,136,.08)">
+      <div class="panel-head" style="border-bottom-color:#00aa44;background:#040810">
+        <span class="panel-title" style="color:#00ff88">★ SECRET ROOM UNLOCKED!</span>
+        <button class="panel-close" style="border-color:#00ff88;color:#00ff88" onclick="closePanel()">✕ CLOSE</button>
+      </div>
+      <div class="panel-body" style="text-align:center;padding:2.5rem 1.5rem">
+        <div style="font-family:'Press Start 2P',monospace;font-size:1.5rem;color:#00ff88;margin-bottom:1rem;animation:blink .8s step-end infinite">★</div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:.6rem;color:#00ff88;line-height:2.2;margin-bottom:1.5rem">ACHIEVEMENT UNLOCKED<br/>WORLD EXPLORER</div>
+        <p style="font-size:.95rem;color:rgba(232,240,255,.75);line-height:1.9;margin-bottom:1.25rem">You walked all the way to the end of the world.<br/>Not many people make it this far.</p>
+        <p style="font-size:.95rem;color:rgba(232,240,255,.75);line-height:1.9;margin-bottom:1.25rem">That curiosity and attention to detail?<br/>That's exactly what Jalin brings to every project.</p>
+        <div style="font-family:'Press Start 2P',monospace;font-size:.42rem;color:#f0c030;border:2px solid #9a7818;padding:1rem;margin-top:1.5rem;line-height:2">
+          "DESIGN IS NOT JUST WHAT IT<br/>LOOKS LIKE — IT'S HOW IT WORKS."<br/>
+          <span style="color:#6a7a94;font-size:.35rem">— JALIN PACE, ARCHITECTURAL ENGINEER</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mute Button -->
+  <div id="top-btns">
+    <button id="btn-home">◄ HOME</button>
+    <button id="mute-btn">🔊 MUSIC</button>
+    <button id="wx-btn">🌦 WEATHER</button>
+  </div>
+  <!-- Mini-map -->
+  <div id="minimap">
+    <div id="mm-track">
+      <div id="mm-player"></div>
+    </div>
+  </div>
+
+  <!-- Mobile Controls -->
+  <div id="dpad">
+    <button class="dpbtn" id="btn-up" style="visibility:hidden">▲</button>
+    <div id="dpad-row">
+      <button class="dpbtn" id="btn-left">◄</button>
+      <button class="dpbtn" id="btn-down" style="visibility:hidden">▼</button>
+      <button class="dpbtn" id="btn-right">►</button>
+    </div>
+  </div>
+  <button class="dpbtn" id="dpad-jump" style="font-size:1rem;border-radius:0">▲</button>
+  <button class="dpbtn" id="dpad-e" style="color:#00e5ff;border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.12)">E</button>
+
+</div><!-- end #game -->
+
+<script>
+'use strict';
+/* ── GAME ENGINE ── */
+
+const WORLD_W = 3200, GROUND_H = 80;
+const GRAVITY = 0.55, JUMP_VEL = -13, SPEED = 4.5, MAX_FALL = 14;
+const PLAYER_W = 36, PLAYER_H = 52;
+const INTERACT_RANGE = 110;
+
+const ZONES = [
+  {id:'about',      tx:420,  label:'★ PLAYER PROFILE'},
+  {id:'skills',     tx:845,  label:'⚙ SKILL TREE'},
+  {id:'experience', tx:1285, label:'📋 QUEST LOG'},
+  {id:'projects',   tx:1745, label:'🏗 PROJECTS'},
+  {id:'education',  tx:2165, label:'🎓 TRAINING ARC'},
+  {id:'contact',    tx:2660, label:'📡 SEND MESSAGE'},
+  {id:'secret',     tx:3095, label:'??? UNKNOWN ZONE'},
+];
+
+const keys = {};
+const touch = {left:false, right:false, jump:false, e:false};
+let running = false, activePanel = null, camX = 0;
+let walkTimer = 0, walkFrame = 0;
+
+const player = {
+  x: 80, y: 0,
+  vx: 0, vy: 0,
+  onGround: false,
+  facing: 1,
+  moving: false
+};
+
+const $ = id => document.getElementById(id);
+const worldEl   = $('world');
+const playerEl  = $('player');
+const titleEl   = $('title');
+const gameEl    = $('game');
+const hudZoneEl = $('hud-zone');
+
+/* ── LOADING BAR ── */
+const LOAD_STEPS = [
+  [0,  'INITIALIZING ENGINE...'],
+  [22, 'BUILDING GAME WORLD...'],
+  [48, 'LOADING PORTFOLIO DATA...'],
+  [72, 'CONNECTING WEATHER API...'],
+  [90, 'ALMOST READY...'],
+  [100,'✓ READY TO PLAY!'],
+];
+(function runLoader() {
+  let i = 0;
+  function next() {
+    if (i >= LOAD_STEPS.length) {
+      setTimeout(() => { $('startBtn').style.display = 'inline-block'; }, 200);
+      return;
+    }
+    const [pct, msg] = LOAD_STEPS[i++];
+    const bar = $('t-load-bar'), stat = $('t-load-status');
+    if (bar)  bar.style.width  = pct + '%';
+    if (stat) stat.textContent = msg;
+    setTimeout(next, 380 + Math.random() * 280);
+  }
+  next();
+})();
+
+/* ── CUTSCENE ── */
+const CS_FRAMES = [
+  {top:'YEAR ' + new Date().getFullYear() + '...',  sub:'CLEVELAND, OHIO',  dur:1400},
+  {top:'AN ARCHITECT',           sub:'WHO ENGINEERS THE IMPOSSIBLE.',        dur:1500},
+  {top:'REVIT. AUTOCAD. LEED.',  sub:'SKILL TREE: FULLY LOADED.',           dur:1400},
+  {top:'NOW ENTERING THE WORLD', sub:'OF JALIN PACE ★',                     dur:1600},
+];
+let csSkipped = false, csTids = [];
+
+function showCutscene() {
+  const cs = $('cutscene');
+  cs.classList.add('show');
+  csSkipped = false;
+  const skip = () => { if (!csSkipped) { csSkipped = true; endCutscene(); } };
+  document.addEventListener('keydown', skip, {once:true});
+  cs.addEventListener('click', skip, {once:true});
+
+  let elapsed = 0, total = CS_FRAMES.reduce((s,f) => s + f.dur, 0) + 600;
+  CS_FRAMES.forEach((f, idx) => {
+    csTids.push(setTimeout(() => {
+      if (csSkipped) return;
+      $('cs-frame').textContent  = f.top;
+      $('cs-line2').textContent  = f.sub;
+      $('cs-bar-fill').style.width = ((elapsed / total) * 100) + '%';
+    }, elapsed));
+    elapsed += f.dur;
+  });
+  csTids.push(setTimeout(() => { if (!csSkipped) endCutscene(); }, elapsed));
+}
+
+function endCutscene() {
+  csSkipped = true;
+  csTids.forEach(clearTimeout);
+  const cs = $('cutscene');
+  cs.style.opacity = '0';
+  cs.style.transition = 'opacity .5s ease';
+  setTimeout(() => { cs.classList.remove('show'); cs.style.opacity = ''; cs.style.transition = ''; actuallyStartGame(); }, 520);
+}
+
+/* ── TITLE → GAME ── */
+$('startBtn').addEventListener('click', startGame);
+document.addEventListener('keydown', e => {
+  if (!running && $('startBtn').style.display !== 'none' &&
+      (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyE')) startGame();
+});
+
+function startGame() {
+  if (running) return;
+  titleEl.classList.add('out');
+  setTimeout(() => { titleEl.style.display = 'none'; }, 650);
+  setTimeout(showCutscene, 600);
+}
+
+function actuallyStartGame() {
+  gameEl.classList.remove('hidden');
+  initStars();
+  initPlayerPos();
+  initMinimap();
+  initBuildingLights();
+  initMusic();
+  setTimeout(initSFX, 200);
+  setTimeout(fetchWeather, 500);
+  $('btn-home').addEventListener('click', goHome);
+  updateClock();
+  resetIdle();
+  running = true;
+  requestAnimationFrame(gameLoop);
+}
+
+function initPlayerPos() {
+  const groundY = window.innerHeight - GROUND_H - PLAYER_H;
+  player.y = groundY;
+  renderPlayer();
+}
+
+function initStars() {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() < .3 ? 3 : Math.random() < .5 ? 2 : 1;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*3200}px;top:${Math.random()*55}%;opacity:${(.3+Math.random()*.7).toFixed(2)}`;
+    frag.appendChild(s);
+  }
+  worldEl.insertBefore(frag, worldEl.firstChild);
+}
+
+/* ── INPUT ── */
+document.addEventListener('keydown', e => { keys[e.code] = true; });
+document.addEventListener('keyup',   e => { delete keys[e.code]; });
+document.addEventListener('keydown', e => {
+  if (!running) return;
+  if ((e.code === 'KeyE' || e.code === 'Enter') && !activePanel) tryInteract();
+  if (e.code === 'Escape' && activePanel) closePanel();
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (e.code === 'Space' && tag !== 'INPUT' && tag !== 'TEXTAREA') e.preventDefault();
+});
+
+/* Mobile buttons */
+function bindHold(id, prop) {
+  const el = $(id); if (!el) return;
+  const on  = () => touch[prop] = true;
+  const off = () => touch[prop] = false;
+  el.addEventListener('touchstart', e => { e.preventDefault(); on(); }, {passive:false});
+  el.addEventListener('touchend',   e => { e.preventDefault(); off(); }, {passive:false});
+  el.addEventListener('mousedown',  on);
+  el.addEventListener('mouseup',    off);
+  el.addEventListener('mouseleave', off);
+}
+bindHold('btn-left',  'left');
+bindHold('btn-right', 'right');
+bindHold('dpad-jump', 'jump');
+$('dpad-e').addEventListener('click', () => { if (!activePanel) tryInteract(); else closePanel(); });
+
+/* ── GAME LOOP ── */
+function gameLoop() {
+  if (!running) return;
+  update();
+  renderPlayer();
+  updateCamera();
+  requestAnimationFrame(gameLoop);
+}
+
+function update() {
+  if (activePanel) return;
+
+  const groundY = window.innerHeight - GROUND_H - PLAYER_H;
+  const moveL = keys['ArrowLeft']  || keys['KeyA'] || touch.left;
+  const moveR = keys['ArrowRight'] || keys['KeyD'] || touch.right;
+  const doJump = keys['Space'] || keys['ArrowUp'] || keys['KeyW'] || touch.jump;
+  const shiftSprint = keys['ShiftLeft'] || keys['ShiftRight'];
+  const curSpeed = (shiftSprint || sprintMode) ? 8.5 : SPEED;
+
+  if (moveL) { player.vx = -curSpeed; player.facing = -1; player.moving = true; }
+  else if (moveR) { player.vx = curSpeed; player.facing = 1; player.moving = true; }
+  else { player.vx = 0; player.moving = false; }
+
+  if (doJump && player.onGround) { player.vy = JUMP_VEL; player.onGround = false; }
+
+  const prevOnGround = player.onGround;
+  player.vy = Math.min(player.vy + GRAVITY, MAX_FALL);
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Ground collision + landing detection
+  if (player.y >= groundY) {
+    player.y = groundY;
+    const impactVy = player.vy;
+    player.vy = 0;
+    if (!prevOnGround) {
+      spawnDust(player.x, player.y + PLAYER_H);
+      playLandThud();
+      if (impactVy > 8) shakeScreen(impactVy * 0.55, 320);
+      player.landSquish = true;
+      setTimeout(() => { player.landSquish = false; }, 180);
+    }
+    player.onGround = true;
+  } else {
+    player.onGround = false;
+  }
+
+  // World bounds
+  player.x = Math.max(0, Math.min(WORLD_W - PLAYER_W, player.x));
+
+  // Walk animation + footstep sound
+  if (player.moving && player.onGround) {
+    walkTimer++;
+    const stepInterval = (shiftSprint || sprintMode) ? 4 : 7;
+    if (walkTimer >= stepInterval) {
+      const prev = walkFrame;
+      walkFrame = (walkFrame + 1) % 2;
+      walkTimer = 0;
+      if (walkFrame !== prev) playFootstep();
+    }
+  } else if (!player.moving) {
+    walkFrame = 0; walkTimer = 0;
+  }
+
+  checkZones();
+  checkNPCs();
+  updateMinimap();
+}
+
+function renderPlayer() {
+  playerEl.style.left = player.x + 'px';
+  playerEl.style.top  = player.y + 'px';
+  playerEl.style.setProperty('--face', player.facing);
+  if (!idleRunning) {
+    let sy = 1;
+    if (player.landSquish)            sy = 0.68;
+    else if (!player.onGround && player.vy < -1) sy = 1.22;
+    else if (!player.onGround && player.vy >  1) sy = 0.88;
+    playerEl.style.transform = `scaleX(${player.facing}) scaleY(${sy})`;
+  }
+  if (player.moving) resetIdle();
+
+  // Walking animation — move legs
+  const legL  = $('pl-leg-l'),  legR  = $('pl-leg-r');
+  const bootL = $('pl-boot-l'), bootR = $('pl-boot-r');
+  if (!legL) return;
+  if (player.moving && player.onGround) {
+    if (walkFrame === 0) {
+      legL.setAttribute('y','30');  bootL.setAttribute('y','40');
+      legR.setAttribute('y','35');  bootR.setAttribute('y','45');
+    } else {
+      legL.setAttribute('y','35');  bootL.setAttribute('y','45');
+      legR.setAttribute('y','30');  bootR.setAttribute('y','40');
+    }
+  } else {
+    legL.setAttribute('y','33');  bootL.setAttribute('y','43');
+    legR.setAttribute('y','33');  bootR.setAttribute('y','43');
+  }
+}
+
+function updateCamera() {
+  const target = player.x + PLAYER_W / 2 - window.innerWidth / 2;
+  camX = Math.max(0, Math.min(WORLD_W - window.innerWidth, target));
+  worldEl.style.transform = `translateX(${-camX}px)`;
+
+  // Parallax clouds (move at 25% speed)
+  const cloudEls = document.querySelectorAll('#clouds .cloud');
+  cloudEls.forEach((c, i) => {
+    const rate = .18 + i * .04;
+    c.style.transform = `translateX(${-camX * rate}px)`;
+  });
+}
+
+/* ── ZONE DETECTION ── */
+let lastZone = null;
+function checkZones() {
+  const cx = player.x + PLAYER_W / 2;
+  let found = null;
+  for (const z of ZONES) {
+    if (Math.abs(cx - z.tx) < INTERACT_RANGE) { found = z; break; }
+  }
+  if (found === lastZone) return;
+  lastZone = found;
+
+  // Reset all zones
+  ZONES.forEach(z => {
+    const el = $('z-' + z.id);
+    if (el) el.classList.remove('active');
+  });
+
+  if (found) {
+    const el = $('z-' + found.id);
+    if (el) el.classList.add('active');
+    hudZoneEl.textContent = found.label + ' — PRESS E TO ENTER';
+    playZoneSound(found.id);
+  } else {
+    hudZoneEl.textContent = '— WALK RIGHT TO EXPLORE —';
+  }
+}
+
+function tryInteract() {
+  if (!lastZone) return;
+  openPanel(lastZone.id);
+}
+
+/* ── PANELS ── */
+function wipeTransition(cb) {
+  const bars = document.querySelectorAll('.wipe-bar');
+  bars.forEach((b, i) => {
+    b.style.transition = `transform .18s ${i * .025}s ease-in`;
+    b.style.transformOrigin = 'top';
+    b.style.transform = 'scaleY(1)';
+  });
+  setTimeout(() => {
+    cb();
+    bars.forEach((b, i) => {
+      b.style.transformOrigin = 'bottom';
+      b.style.transition = `transform .18s ${i * .025}s ease-out`;
+      b.style.transform = 'scaleY(0)';
+    });
+    setTimeout(() => {
+      bars.forEach(b => { b.style.transition = ''; b.style.transformOrigin = 'top'; });
+    }, 400);
+  }, 220);
+}
+
+function openPanel(id) {
+  if (activePanel) closePanel();
+  wipeTransition(() => {
+    activePanel = id;
+    const panel = $('panel-' + id);
+    if (!panel) return;
+    panel.classList.add('open');
+    if (id === 'education') triggerBars();
+    panel.addEventListener('click', backdropClose);
+  });
+}
+
+function backdropClose(e) {
+  if (e.target === e.currentTarget) closePanel();
+}
+
+function closePanel() {
+  if (!activePanel) return;
+  const panel = $('panel-' + activePanel);
+  if (panel) {
+    panel.classList.remove('open');
+    panel.removeEventListener('click', backdropClose);
+  }
+  activePanel = null;
+}
+window.closePanel = closePanel;
+
+function triggerBars() {
+  setTimeout(() => {
+    document.querySelectorAll('#edu-bars .bar-fill').forEach(b => {
+      b.style.width = b.dataset.w + '%';
+    });
+  }, 200);
+}
+
+/* ── CONTACT FORM ── */
+document.getElementById('cf').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const n = $('cf-n'), em = $('cf-e'), s = $('cf-s'), m = $('cf-m');
+  let ok = true;
+  [[n,'fe-n'],[em,'fe-e'],[s,'fe-s'],[m,'fe-m']].forEach(([f,eid]) => {
+    const v = f.value.trim(); const err = $(eid); let e2 = '';
+    if (!v) e2 = 'REQUIRED FIELD';
+    else if (f.type==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) e2 = 'INVALID EMAIL';
+    else if (f.name==='message' && v.length < 10) e2 = 'MIN 10 CHARS';
+    if (e2) { f.classList.add('err'); if(err) err.textContent = e2; ok = false; }
+    else { f.classList.remove('err'); if(err) err.textContent = ''; }
+  });
+  if (!ok) return;
+  const btn = $('cf-btn'), okEl = $('cf-ok');
+  btn.disabled = true; btn.textContent = '► SENDING...';
+
+  const params = { from_name: n.value.trim(), from_email: em.value.trim(), subject: s.value.trim(), message: m.value.trim() };
+
+  if (cfReady && window.emailjs) {
+    emailjs.send(EMAILJS_SVC, EMAILJS_TPL, params)
+      .then(() => {
+        btn.disabled = false; btn.textContent = '► SEND MESSAGE';
+        okEl.textContent = `✓ MESSAGE SENT! THANKS ${params.from_name.toUpperCase()}! I'LL BE IN TOUCH SOON.`;
+        this.reset(); setTimeout(() => { okEl.textContent = ''; }, 7000);
+      })
+      .catch(() => {
+        btn.disabled = false; btn.textContent = '► SEND MESSAGE';
+        okEl.style.color = '#ff4444';
+        okEl.textContent = '✕ SEND FAILED — TRY EMAILING DIRECTLY.';
+        setTimeout(() => { okEl.textContent = ''; okEl.style.color = ''; }, 6000);
+      });
+  } else {
+    // Fallback: open email client if EmailJS not configured
+    const body = `Name: ${params.from_name}\nEmail: ${params.from_email}\nSubject: ${params.subject}\n\n${params.message}`;
+    window.location.href = `mailto:pacejalin42@gmail.com?subject=${encodeURIComponent(params.subject)}&body=${encodeURIComponent(body)}`;
+    btn.disabled = false; btn.textContent = '► SEND MESSAGE';
+    okEl.textContent = '✓ YOUR EMAIL CLIENT HAS BEEN OPENED!';
+    this.reset(); setTimeout(() => { okEl.textContent = ''; }, 7000);
+  }
+});
+
+/* ── RESIZE ── */
+window.addEventListener('resize', () => {
+  if (!running) return;
+  const groundY = window.innerHeight - GROUND_H - PLAYER_H;
+  if (player.y > groundY) player.y = groundY;
+});
+
+/* ── BACKGROUND MUSIC (Web Audio API chiptune) ── */
+let audioCtx = null, masterGain = null, musicMuted = false, loopTid = null;
+
+const BPM = 148, B = 60 / BPM;
+
+// Melody: [freq Hz, beats]
+const MEL = [
+  [659,1],[784,1],[880,1],[784,1],
+  [659,1],[587,1],[523,2],
+  [659,1],[784,1],[880,1],[784,1],
+  [587,1],[659,1],[784,2],
+  [880,1],[784,1],[659,1],[587,1],
+  [523,1],[587,1],[659,2],
+  [784,1],[659,1],[587,1],[523,1],
+  [587,2],[523,2]
+];
+
+// Counter-melody (higher register, softer)
+const CTR = [
+  [1047,2],[1175,2],[1047,2],[988,2],
+  [1047,2],[1175,2],[1047,2],[880,2],
+  [1175,2],[1047,2],[988,2],[880,2],
+  [988,2],[880,2],[784,2],[880,2]
+];
+
+// Bass: [freq Hz, beats]
+const BASS = [
+  [131,2],[196,2],[131,2],[196,2],
+  [131,2],[196,2],[131,2],[220,2],
+  [131,2],[196,2],[131,2],[175,2],
+  [131,2],[175,2],[131,2],[196,2]
+];
+
+function schedNote(freq, t, dur, type, vol) {
+  const osc = audioCtx.createOscillator();
+  const g   = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.82);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start(t);
+  osc.stop(t + dur);
+}
+
+function playLoop(startTime) {
+  // melody
+  let t = startTime;
+  MEL.forEach(([f,d]) => { schedNote(f, t, d*B, 'square', 0.16); t += d*B; });
+  const loopDur = t - startTime;
+
+  // counter melody
+  let ct = startTime;
+  CTR.forEach(([f,d]) => { schedNote(f, ct, d*B, 'square', 0.06); ct += d*B; });
+
+  // bass
+  let bt = startTime;
+  BASS.forEach(([f,d]) => { schedNote(f, bt, d*B, 'triangle', 0.11); bt += d*B; });
+
+  // schedule next loop before this one ends
+  loopTid = setTimeout(() => {
+    if (!musicMuted) playLoop(startTime + loopDur);
+  }, (loopDur - 0.25) * 1000);
+}
+
+function initMusic() {
+  try {
+    audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.28;
+    masterGain.connect(audioCtx.destination);
+    playLoop(audioCtx.currentTime + 0.05);
+    $('top-btns').style.display = 'flex';
+    $('btn-home').style.display = 'block';
+    $('mute-btn').addEventListener('click', toggleMusic);
+    $('wx-btn').addEventListener('click', toggleWeather);
+  } catch(e) { console.warn('Web Audio not available'); }
+}
+
+function toggleMusic() {
+  musicMuted = !musicMuted;
+  const btn = $('mute-btn');
+  if (musicMuted) {
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+    clearTimeout(loopTid);
+    btn.textContent = '🔇 MUTED';
+    btn.classList.add('muted');
+  } else {
+    masterGain.gain.linearRampToValueAtTime(0.28, audioCtx.currentTime + 0.1);
+    playLoop(audioCtx.currentTime + 0.05);
+    btn.textContent = '🔊 MUSIC';
+    btn.classList.remove('muted');
+  }
+}
+
+/* ── SPRINT (Shift + double-tap) ── */
+let sprintMode = false, sprintTimer = null, lastDirKey = '', lastDirTime = 0;
+
+document.addEventListener('keydown', e => {
+  if (!running || activePanel) return;
+  const isL = e.code === 'ArrowLeft'  || e.code === 'KeyA';
+  const isR = e.code === 'ArrowRight' || e.code === 'KeyD';
+  if (isL || isR) {
+    const dir = isL ? 'L' : 'R';
+    const now = Date.now();
+    if (dir === lastDirKey && now - lastDirTime < 260) {
+      sprintMode = true;
+      clearTimeout(sprintTimer);
+      sprintTimer = setTimeout(() => { sprintMode = false; updateSprintHUD(); }, 1800);
+      updateSprintHUD();
+    }
+    lastDirKey = dir; lastDirTime = now;
+  }
+});
+
+function updateSprintHUD() {
+  const ind = $('sprint-ind');
+  if (ind) ind.className = sprintMode ? 'on' : '';
+}
+
+// Override SPEED usage: sprint = 8.5, normal = 4.5
+// (SPEED constant is already 4.5; we override in update() below)
+
+/* ── DUST PARTICLES ON LANDING ── */
+let wasOnGround = true;
+
+function spawnDust(wx, wy) {
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'dust';
+    const dx = (Math.random() - 0.5) * 24;
+    const delay = i * 25;
+    d.style.cssText = `left:${wx + 4 + i * 5}px;top:${wy}px;--dx:${dx.toFixed(1)}px;animation:dustFly .45s ${delay}ms ease-out forwards`;
+    worldEl.appendChild(d);
+    setTimeout(() => d.remove(), 500 + delay);
+  }
+}
+
+/* ── FOOTSTEP SOUND ── */
+let sfxCtx = null, lastWalkFrame = -1;
+
+function initSFX() {
+  try { sfxCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); }
+  catch(e) {}
+}
+
+function playFootstep() {
+  if (!sfxCtx) return;
+  try {
+    const len = Math.floor(sfxCtx.sampleRate * 0.04);
+    const buf = sfxCtx.createBuffer(1, len, sfxCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3) * 0.45;
+    }
+    const src = sfxCtx.createBufferSource();
+    src.buffer = buf;
+    const g = sfxCtx.createGain();
+    g.gain.value = 0.18;
+    src.connect(g); g.connect(sfxCtx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function playLandThud() {
+  if (!sfxCtx) return;
+  try {
+    const len = Math.floor(sfxCtx.sampleRate * 0.07);
+    const buf = sfxCtx.createBuffer(1, len, sfxCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2) * 0.6;
+    }
+    const src = sfxCtx.createBufferSource();
+    src.buffer = buf;
+    const g = sfxCtx.createGain();
+    g.gain.value = 0.25;
+    src.connect(g); g.connect(sfxCtx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+/* ── NPC PROXIMITY ── */
+const NPC_DEFS = [
+  {id:'npc0', tx:192}, {id:'npc1', tx:636},
+  {id:'npc2', tx:1076},{id:'npc3', tx:1892},{id:'npc4', tx:2506}
+];
+
+function checkNPCs() {
+  const cx = player.x + PLAYER_W / 2;
+  NPC_DEFS.forEach(n => {
+    const el = document.getElementById(n.id);
+    if (!el) return;
+    el.classList.toggle('near', Math.abs(cx - n.tx) < 120);
+  });
+}
+
+/* ── EMAILJS CONTACT FORM ── */
+// ──────────────────────────────────────────────────────
+// HOW TO ENABLE REAL EMAIL SENDING (free, 5 min setup):
+//   1. Go to https://www.emailjs.com and sign up free
+//   2. Add an Email Service (connect your Gmail)
+//   3. Create a Template with variables:
+//      {{from_name}}, {{from_email}}, {{subject}}, {{message}}
+//   4. Copy your Public Key, Service ID, and Template ID
+//   5. Paste them into the three constants below
+// ──────────────────────────────────────────────────────
+const EMAILJS_PK  = 'AkKXT1bhG-4oAeGWq';
+const EMAILJS_SVC = 'service_05d3s34';
+const EMAILJS_TPL = 'template_5wv3xyg';
+
+const cfReady = EMAILJS_PK !== 'YOUR_PUBLIC_KEY';
+if (cfReady && window.emailjs) emailjs.init({ publicKey: EMAILJS_PK });
+
+/* ── MINI-MAP ── */
+const visitedZones = new Set();
+function initMinimap() {
+  const track = $('mm-track');
+  if (!track) return;
+  ZONES.forEach(z => {
+    const pct = (z.tx / WORLD_W) * 100;
+    const dot = document.createElement('div');
+    dot.className = 'mm-dot';
+    dot.id = 'mm-' + z.id;
+    dot.style.left = pct + '%';
+    const lbl = document.createElement('div');
+    lbl.className = 'mm-lbl';
+    lbl.style.left = pct + '%';
+    lbl.textContent = z.id.toUpperCase().slice(0,3);
+    track.appendChild(dot);
+    track.appendChild(lbl);
+  });
+}
+function updateMinimap() {
+  const pct = (player.x / WORLD_W) * 100;
+  const mp = $('mm-player');
+  if (mp) mp.style.left = pct + '%';
+  if (lastZone) {
+    visitedZones.add(lastZone.id);
+    const dot = $('mm-' + lastZone.id);
+    if (dot) dot.classList.add('visited');
+  }
+}
+
+/* ── BACK TO START ── */
+function goHome() {
+  const fl = $('flash');
+  if (fl) { fl.style.opacity = '.25'; setTimeout(() => fl.style.opacity = '0', 160); }
+  player.x = 80; player.vx = 0; player.vy = 0;
+}
+
+/* ── BUILDING LIGHTS FLICKER ── */
+function initBuildingLights() {
+  const wins = document.querySelectorAll('.wg');
+  if (!wins.length) return;
+  (function flicker() {
+    const n = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < n; i++) {
+      const w = wins[Math.floor(Math.random() * wins.length)];
+      if (w) w.classList.toggle('lit');
+    }
+    setTimeout(flicker, 500 + Math.random() * 900);
+  })();
+}
+
+/* ── ZONE AMBIENT SOUNDS ── */
+function playZoneSound(id) {
+  if (!sfxCtx) return;
+  const t = sfxCtx.currentTime;
+  const play = (freq, start, dur, type='sine', vol=0.15) => {
+    const o = sfxCtx.createOscillator(), g = sfxCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t+start);
+    g.gain.linearRampToValueAtTime(vol, t+start+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t+start+dur);
+    o.connect(g); g.connect(sfxCtx.destination);
+    o.start(t+start); o.stop(t+start+dur);
+  };
+  const noise = (start, dur, vol=0.25) => {
+    const len = Math.floor(sfxCtx.sampleRate * dur);
+    const buf = sfxCtx.createBuffer(1, len, sfxCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 3);
+    const src = sfxCtx.createBufferSource(), g = sfxCtx.createGain();
+    src.buffer = buf; g.gain.value = vol;
+    src.connect(g); g.connect(sfxCtx.destination);
+    src.start(t + start);
+  };
+  switch(id) {
+    case 'about':      // Door chime — C E G
+      play(523,.00,.5); play(659,.12,.5); play(784,.24,.6); break;
+    case 'skills':     // Gear whir
+      play(90,.0,.6,'sawtooth',.12); play(130,.1,.5,'sawtooth',.08); break;
+    case 'experience': // Keyboard clicks
+      [0,.08,.16,.24,.32].forEach(s => noise(s,.025,.3)); break;
+    case 'projects':   // Construction thud
+      play(55,.0,.4,'square',.3); play(40,.05,.35,'square',.2); break;
+    case 'education':  // School bell
+      play(880,.0,1.2,'sine',.14); play(1108,.04,1.1,'sine',.09); play(1318,.08,1,'sine',.06); break;
+    case 'contact':    // Radio beeps
+      play(1200,.0,.12,'square',.1); play(1200,.22,.12,'square',.1); play(900,.44,.2,'square',.08); break;
+  }
+}
+
+/* ── RESUME DOWNLOAD ── */
+function downloadResume() {
+  const txt = `JALIN PACE — ARCHITECTURAL ENGINEER
+Cleveland, OH  |  (216) 625-7232  |  pacejalin42@gmail.com
+linkedin.com/in/jalin-p-234892376
+${'═'.repeat(55)}
+
+EXPERIENCE
+${'─'.repeat(55)}
+Architectural Engineer — Pace Architect, Cleveland OH  (Mar 2023 – Present)
+  • Designed and coordinated building systems for commercial and residential
+    structures, ensuring compliance with building codes (IBC/IRC).
+  • Produced detailed architectural drawings, structural layouts, and 3D
+    models using Autodesk Revit and AutoCAD.
+  • Collaborated with MEP engineers to integrate building systems and
+    resolve design conflicts.
+  • Conducted site visits to monitor construction quality and address
+    field issues.
+  • Prepared material specifications, cost estimates, and project schedules.
+
+Architectural Engineering Intern — Pace Architect, Cleveland OH
+  • Assisted senior engineers in construction documents and feasibility studies.
+  • Supported drafting and modeling of floor plans, elevations, and structural
+    components.
+  • Performed load calculations, material takeoffs, and documentation prep.
+  • Created 3D renderings for client presentations using SketchUp & Lumion.
+  • Participated in site inspections and documented corrective actions.
+
+EDUCATION
+${'─'.repeat(55)}
+B.S. Architectural Engineering — Ohio State University  (Expected 2025)
+A.A.S. Architectural Technology — Cuyahoga Community College
+
+CERTIFICATIONS
+${'─'.repeat(55)}
+  • OSHA 30 Construction Safety — U.S. Dept. of Labor
+  • LEED Green Associate — U.S. Green Building Council
+
+SKILLS
+${'─'.repeat(55)}
+Software:   Autodesk Revit (BIM), AutoCAD, SketchUp, Lumion,
+            Bluebeam Revu, Microsoft 365
+Technical:  Structural Analysis & Detailing, MEP Coordination,
+            Construction Documentation, 3D Modeling & Rendering
+Compliance: IBC/IRC Building Codes, ADA Compliance, LEED,
+            OSHA Construction Safety
+Management: Project Coordination, Site Inspections, Cost Estimation,
+            Material Selection & Specifications
+`;
+  const blob = new Blob([txt], {type:'text/plain'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'Jalin_Pace_Resume.txt';
+  a.click(); URL.revokeObjectURL(url);
+}
+window.downloadResume = downloadResume;
+
+/* ── REAL-TIME WEATHER ── */
+const WEATHER_CODES = {
+  0:'☀ CLEAR SKY', 1:'🌤 MOSTLY CLEAR', 2:'⛅ PARTLY CLOUDY', 3:'☁ OVERCAST',
+  45:'🌫 FOGGY', 48:'🌫 FREEZING FOG',
+  51:'🌦 LIGHT DRIZZLE', 53:'🌦 DRIZZLE', 55:'🌧 HEAVY DRIZZLE',
+  61:'🌧 LIGHT RAIN', 63:'🌧 RAIN', 65:'🌧 HEAVY RAIN',
+  71:'❄ LIGHT SNOW', 73:'❄ SNOW', 75:'❄ HEAVY SNOW', 77:'❄ SNOW GRAINS',
+  80:'🌦 LIGHT SHOWERS', 81:'🌧 SHOWERS', 82:'⛈ HEAVY SHOWERS',
+  85:'🌨 SNOW SHOWERS', 86:'🌨 HEAVY SNOW SHOWERS',
+  95:'⛈ THUNDERSTORM', 96:'⛈ THUNDERSTORM + HAIL', 99:'⛈ SEVERE STORM'
+};
+
+let wxInterval = null, lightningTid = null;
+
+async function fetchWeather() {
+  const badge = $('weather-badge');
+  try {
+    // Try user's location first, fall back to Cleveland OH (Jalin's base)
+    let lat = 41.4993, lon = -81.6944;
+    try {
+      const pos = await new Promise((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, {timeout: 4000})
+      );
+      lat = pos.coords.latitude; lon = pos.coords.longitude;
+    } catch(_) {}
+
+    const r = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code&timezone=auto`
+    );
+    const d = await r.json();
+    const code = d.current.weather_code;
+    lastWeatherCode = code;
+    if (!weatherOff) applyWeather(code);
+    if (badge) {
+      badge.textContent = WEATHER_CODES[code] || '🌡 UNKNOWN';
+      badge.style.opacity = '1';
+      setTimeout(() => { badge.style.opacity = '0'; }, 6000);
+    }
+  } catch(e) {
+    console.warn('Weather unavailable');
+  }
+}
+
+function applyWeather(code) {
+  const layer = $('weather-layer');
+  if (!layer) return;
+  clearInterval(wxInterval);
+  clearTimeout(lightningTid);
+
+  // Reset sky tint
+  layer.style.background = 'transparent';
+
+  const isRain    = (code >= 51 && code <= 55) || (code >= 61 && code <= 65) || (code >= 80 && code <= 82);
+  const isSnow    = (code >= 71 && code <= 77) || code === 85 || code === 86;
+  const isStorm   = code === 95 || code === 96 || code === 99;
+  const isFog     = code === 45 || code === 48;
+  const isCloudy  = code >= 2 && code <= 3;
+
+  if (isStorm) {
+    // Heavy rain + lightning
+    layer.style.background = 'rgba(0,0,20,.18)';
+    wxInterval = setInterval(() => spawnRain(layer, 12), 45);
+    scheduleLightning();
+  } else if (isRain) {
+    const heavy = code === 65 || code === 82;
+    const intensity = heavy ? 9 : (code >= 61 ? 5 : 3);
+    layer.style.background = 'rgba(0,0,10,.08)';
+    wxInterval = setInterval(() => spawnRain(layer, intensity), heavy ? 50 : 75);
+  } else if (isSnow) {
+    const heavy = code === 75 || code === 86;
+    layer.style.background = 'rgba(200,220,255,.04)';
+    wxInterval = setInterval(() => spawnSnow(layer, heavy ? 3 : 1), heavy ? 100 : 200);
+  } else if (isFog) {
+    layer.style.background = 'rgba(180,200,220,.09)';
+    spawnFog(layer);
+  } else if (isCloudy) {
+    layer.style.background = 'rgba(0,0,0,.07)';
+  }
+}
+
+function spawnRain(layer, count) {
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'rain-drop';
+    const spd = .35 + Math.random() * .25;
+    const lx = (-5 + Math.random() * 110) + 'vw';
+    d.style.cssText = `left:${lx};height:${14+Math.random()*10}px;opacity:${.4+Math.random()*.4};animation-duration:${spd}s`;
+    layer.appendChild(d);
+    const removeTid = setTimeout(() => d.remove(), spd * 1000 + 100);
+    d.addEventListener('animationend', () => {
+      clearTimeout(removeTid);
+      spawnSplash(lx);
+      d.remove();
+    }, {once:true});
+  }
+}
+
+function spawnSnow(layer, count) {
+  for (let i = 0; i < count; i++) {
+    const f = document.createElement('div');
+    f.className = 'snow-flake';
+    const sz = 2 + Math.random() * 4;
+    const spd = 4 + Math.random() * 5;
+    f.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;opacity:${.5+Math.random()*.5};animation-duration:${spd}s`;
+    layer.appendChild(f);
+    setTimeout(() => f.remove(), spd * 1000 + 200);
+  }
+}
+
+function spawnFog(layer) {
+  for (let i = 0; i < 5; i++) {
+    const f = document.createElement('div');
+    f.className = 'fog-strip';
+    f.style.cssText = `top:${20+i*15}%;left:-10%;width:120%;animation-duration:${8+i*3}s;animation-delay:${i*1.2}s;opacity:${.4+i*.1}`;
+    layer.appendChild(f);
+  }
+}
+
+function scheduleLightning() {
+  const delay = 2500 + Math.random() * 5000;
+  lightningTid = setTimeout(() => {
+    const fl = $('flash');
+    if (fl && !activePanel && !weatherOff) {
+      fl.style.background = '#e8f0ff';
+      fl.style.opacity = '.25';
+      setTimeout(() => { fl.style.opacity = '0'; }, 80);
+      setTimeout(() => { fl.style.opacity = '.1'; }, 180);
+      setTimeout(() => { fl.style.opacity = '0'; fl.style.background = '#f0c030'; }, 260);
+      shakeScreen(3, 250);
+    }
+    scheduleLightning();
+  }, delay);
+}
+
+let weatherOff = false, lastWeatherCode = -1;
+function toggleWeather() {
+  weatherOff = !weatherOff;
+  const btn = $('wx-btn');
+  const layer = $('weather-layer');
+  if (weatherOff) {
+    clearInterval(wxInterval);
+    if (layer) { layer.innerHTML = ''; layer.style.background = 'transparent'; }
+    btn.textContent = '🌦 WEATHER';
+    btn.classList.add('off');
+  } else {
+    btn.classList.remove('off');
+    if (lastWeatherCode >= 0) applyWeather(lastWeatherCode);
+  }
+}
+
+/* ── CURSOR GLOW ── */
+const cursorEl = $('cursor');
+document.addEventListener('mousemove', e => {
+  if (!cursorEl) return;
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top  = e.clientY + 'px';
+  const t = document.createElement('div');
+  t.className = 'cursor-trail';
+  const sz = 5 + Math.random() * 5;
+  t.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${sz}px;height:${sz}px;opacity:.45;transition:opacity .38s,transform .38s`;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '0'; t.style.transform = 'translate(-50%,-50%) scale(0)'; });
+  setTimeout(() => t.remove(), 420);
+});
+
+/* ── RAIN SPLASH ── */
+function spawnSplash(x) {
+  const layer = $('weather-layer');
+  if (!layer) return;
+  const s = document.createElement('div');
+  s.className = 'rain-splash';
+  s.style.left = x;
+  layer.appendChild(s);
+  setTimeout(() => s.remove(), 380);
+}
+
+/* ── SCREEN SHAKE ── */
+function shakeScreen(intensity, duration) {
+  intensity = intensity || 5; duration = duration || 300;
+  const game = $('game');
+  if (!game) return;
+  const start = Date.now();
+  (function doShake() {
+    const elapsed = Date.now() - start;
+    if (elapsed >= duration) { game.style.transform = ''; return; }
+    const frac = 1 - elapsed / duration;
+    const amt = intensity * frac;
+    game.style.transform = `translate(${(Math.random()-.5)*amt*2}px,${(Math.random()-.5)*amt*2}px)`;
+    requestAnimationFrame(doShake);
+  })();
+}
+
+/* ── IDLE ANIMATION ── */
+let idleTimeout = null, idleRunning = false;
+function resetIdle() {
+  clearTimeout(idleTimeout);
+  idleRunning = false;
+  idleTimeout = setTimeout(runIdle, 3000);
+}
+function runIdle() {
+  if (player.moving || activePanel || !player.onGround) { resetIdle(); return; }
+  idleRunning = true;
+  const orig = player.facing;
+  // look left
+  playerEl.style.transform = `scaleX(-1)`;
+  setTimeout(() => {
+    playerEl.style.transform = `scaleX(${orig})`;
+    setTimeout(() => {
+      // bob up
+      playerEl.style.transform = `scaleX(${orig}) translateY(-4px)`;
+      setTimeout(() => {
+        playerEl.style.transform = `scaleX(${orig}) translateY(0)`;
+        idleRunning = false;
+        resetIdle();
+      }, 300);
+    }, 600);
+  }, 700);
+}
+
+/* ── LIVE CLOCK (Eastern / Cleveland) ── */
+function updateClock() {
+  const el = $('hud-clock');
+  if (!el) return;
+  const t = new Date().toLocaleTimeString('en-US', {timeZone:'America/New_York', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true});
+  el.textContent = '🕐 CLV ' + t;
+}
+setInterval(updateClock, 1000);
+
+/* ── MOBILE JOYSTICK ── */
+(function initJoystick() {
+  const base = $('joystick-base'), knob = $('joystick-knob');
+  if (!base || !knob) return;
+  let startX = 0, startY = 0, active = false;
+  const MAX_R = 28;
+
+  function onStart(cx, cy) {
+    active = true; startX = cx; startY = cy;
+  }
+  function onMove(cx, cy) {
+    if (!active) return;
+    const dx = cx - startX, dy = cy - startY;
+    const dist = Math.min(Math.hypot(dx, dy), MAX_R);
+    const angle = Math.atan2(dy, dx);
+    const kx = Math.cos(angle) * dist, ky = Math.sin(angle) * dist;
+    knob.style.transform = `translate(calc(-50% + ${kx}px), calc(-50% + ${ky}px))`;
+    touch.left  = dx < -10;
+    touch.right = dx > 10;
+    touch.jump  = dy < -22;
+  }
+  function onEnd() {
+    active = false;
+    knob.style.transform = 'translate(-50%,-50%)';
+    touch.left = touch.right = touch.jump = false;
+  }
+  base.addEventListener('touchstart',  e => { e.preventDefault(); onStart(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+  base.addEventListener('touchmove',   e => { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); },  {passive:false});
+  base.addEventListener('touchend',    () => onEnd(), {passive:true});
+  base.addEventListener('mousedown',   e => onStart(e.clientX, e.clientY));
+  document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+  document.addEventListener('mouseup',   () => onEnd());
+})();
+
+/* ── PARTICLE CLICK FX ── */
+const FX = ['+10 XP','★','!','■','▲'];
+document.addEventListener('click', e => {
+  if (!running) return;
+  const d = document.createElement('div');
+  d.textContent = FX[Math.floor(Math.random()*FX.length)];
+  d.style.cssText = `position:fixed;left:${e.clientX-20}px;top:${e.clientY-10}px;font-family:'Press Start 2P',monospace;font-size:.4rem;color:#f0c030;pointer-events:none;z-index:9999;animation:blink .1s 0s 1,none;transition:transform 1s,opacity 1s;transform:translateY(0);opacity:1`;
+  document.body.appendChild(d);
+  requestAnimationFrame(() => { d.style.transform = 'translateY(-70px)'; d.style.opacity = '0'; });
+  setTimeout(() => d.remove(), 1100);
+});
+</script>
+</body>
+</html>
